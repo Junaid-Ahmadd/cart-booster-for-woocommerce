@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Woo Side Cart
  * Description: Woo Side Cart
- * Author: Junaid Ahmad
+ * Author: Junaid Ahmad 
  * Version: 1.0
  */
 
