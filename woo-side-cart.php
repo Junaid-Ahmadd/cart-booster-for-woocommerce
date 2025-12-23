@@ -1,11 +1,20 @@
 <?php
 
-/**
- * Plugin Name: Woo Side Cart
- * Description: Woo Side Cart
- * Author: Junaid Ahmad 
- * Version: 1.0
- */
+   /**
+    * Plugin Name: Woo Side Cart
+    * Plugin URI: https://github.com/Junaid-Ahmadd/woo-side-cart
+    * Description: A lightweight WooCommerce side cart with AJAX updates, free shipping progress bar, and cross-sell carousel.
+    * Version: 1.0.0
+    * Requires at least: 5.8
+    * Requires PHP: 7.4
+    * Author: Junaid Ahmad
+    * Author URI: https://github.com/Junaid-Ahmadd
+    * License: GPL v2 or later
+    * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+    * Text Domain: woo-side-cart
+    * Domain Path: /languages
+    * Requires Plugins: woocommerce
+    */
 
 
 if (!defined('ABSPATH')) {
