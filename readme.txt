@@ -1,4 +1,4 @@
-=== Cart Booster For WooCommerce ===
+=== Cart Booster for WooCommerce ===
 Contributors: Junaid Ahmad
 Tags: woocommerce, cart, side cart, ajax cart
 Requires at least: 5.8
