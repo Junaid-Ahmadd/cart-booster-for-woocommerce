@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class Side_Cart_Settings
+class Woo_Side_Cart_Settings
 {
 
     protected static $instance = null;
@@ -29,6 +29,7 @@ class Side_Cart_Settings
     {
         add_action('admin_menu', array($this, 'add_settings_page'));
         add_action('admin_init', array($this, 'register_settings'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
     }
 
     /**
@@ -174,15 +175,6 @@ class Side_Cart_Settings
         }
         echo '</div>';
 
-        // Simple JS for selection effect
-        echo "<script>
-            jQuery(document).ready(function($){
-                $('.side-cart-option').click(function(){ 
-                    $('.side-cart-option').removeClass('selected'); 
-                    $(this).addClass('selected'); 
-                });
-            });
-        </script>";
     }
 
 
@@ -344,4 +336,21 @@ class Side_Cart_Settings
 
 <?php
     }
+
+    public function enqueue_admin_assets($hook)
+{
+    // 1. Check if we are on the Side Cart settings page
+    // The $hook string for a sub-page usually looks like 'settings_page_woo_side_cart_settings'
+    // You can also check if $_GET['page'] matches your slug
+    if (isset($_GET['page']) && $_GET['page'] === $this->page_slug) {
+        
+        wp_enqueue_script(
+            'woo-side-cart-admin', // Unique Handle
+            WOO_SIDE_CART_URL . 'assets/js/admin.js', // Path to file
+            array('jquery'), // Dependency
+            WOO_SIDE_CART_VERSION,
+            true // Load in footer
+        );
+    }
+}
 }

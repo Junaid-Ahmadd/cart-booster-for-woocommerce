@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class Cross_Sells
+class Woo_Side_Cart_Cross_Sells
 {
 
     protected static $instance = null;

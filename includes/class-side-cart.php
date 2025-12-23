@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class Side_Cart
+class Woo_Side_Cart_Main
 {
     protected static $instance = null;
 
@@ -74,7 +74,7 @@ class Side_Cart
         $selected_icon_key = get_option('woo_side_cart_icon', 'cart-classic');
 
         // Fetch the icon array from the Settings class
-        $icons = Side_Cart_Settings::get_cart_icons();
+        $icons = Woo_Side_Cart_Settings::get_cart_icons();
 
         // Get the SVG string (fallback to classic if key doesn't exist)
         $svg = isset($icons[$selected_icon_key]) ? $icons[$selected_icon_key] : $icons['cart-classic'];

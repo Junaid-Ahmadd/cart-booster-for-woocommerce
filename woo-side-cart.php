@@ -68,9 +68,9 @@ function woo_side_cart_init()
     require_once WOO_SIDE_CART_PATH . 'includes/class-settings.php';
 
     // Initialize
-    Side_Cart::get_instance();
-    Shipping_Bar::get_instance();
-    Cross_Sells::get_instance();
-    Side_Cart_Settings::get_instance();
+    Woo_Side_Cart_Main::get_instance();
+    Woo_Side_Cart_Shipping_Bar::get_instance();
+    Woo_Side_Cart_Cross_Sells::get_instance();
+    Woo_Side_Cart_Settings::get_instance();
 }
 add_action('plugins_loaded', 'woo_side_cart_init');

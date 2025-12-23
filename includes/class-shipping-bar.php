@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class Shipping_Bar
+class Woo_Side_Cart_Shipping_Bar
 {
     protected static $instance = null;
 
