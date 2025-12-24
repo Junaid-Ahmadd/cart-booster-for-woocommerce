@@ -55,10 +55,10 @@ function woo_side_cart_init()
     }
 
     // Load classes
-    require_once WOO_SIDE_CART_PATH . 'includes/class-side-cart.php';
-    require_once WOO_SIDE_CART_PATH . 'includes/class-shipping-bar.php';
-    require_once WOO_SIDE_CART_PATH . 'includes/class-cross-sells.php';
-    require_once WOO_SIDE_CART_PATH . 'includes/class-settings.php';
+    require_once CART_BOOSTER_PATH . 'includes/class-side-cart.php';
+    require_once CART_BOOSTER_PATH . 'includes/class-shipping-bar.php';
+    require_once CART_BOOSTER_PATH . 'includes/class-cross-sells.php';
+    require_once CART_BOOSTER_PATH . 'includes/class-settings.php';
 
     // Initialize
     Woo_Side_Cart_Main::get_instance();

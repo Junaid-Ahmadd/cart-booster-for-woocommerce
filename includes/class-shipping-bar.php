@@ -134,8 +134,8 @@ class Woo_Side_Cart_Shipping_Bar
                 <?php else : ?>
                     <span class="progress-message">
                         <?php
-                        /* translators: %1$s: Remaining amount, %2$s: Opening strong tag, %3$s: Closing strong tag */
                         printf(
+                            /* translators: %1$s: Remaining amount, %2$s: Opening strong tag, %3$s: Closing strong tag */
                             esc_html__('Add %1$s more to get %2$sFREE Shipping%3$s', 'cart-booster-for-woocommerce'),
                             '<strong>' . wp_kses_post(wc_price($progress['remaining'])) . '</strong>', // %1$s
                             '<strong>', // %2$s
