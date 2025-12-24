@@ -178,17 +178,53 @@ class Woo_Side_Cart_Settings
                     'stroke-width' => true,
                     'stroke-linecap' => true,
                     'stroke-linejoin' => true,
-                    'aria-hidden' => true,
+                    'version' => true,  // ADD THIS
                     'class' => true,
                     'width' => true,
                     'height' => true
                 ),
-                'path'   => array('d' => true, 'fill' => true, 'stroke' => true),
-                'circle' => array('cx' => true, 'cy' => true, 'r' => true),
-                'g'      => array('fill' => true),
-                'rect'   => array('x' => true, 'y' => true, 'width' => true, 'height' => true, 'rx' => true),
-                'line'   => array('x1' => true, 'y1' => true, 'x2' => true, 'y2' => true),
-                'polyline' => array('points' => true),
+                'path' => array(
+                    'd' => true,
+                    'fill' => true,
+                    'stroke' => true,
+                    'fill-rule' => true,      // ADD THIS
+                    'clip-rule' => true       // ADD THIS
+                ),
+                'circle' => array(
+                    'cx' => true,
+                    'cy' => true,
+                    'r' => true,
+                    'stroke' => true,           // ADD THIS
+                    'stroke-width' => true,     // ADD THIS
+                    'stroke-linejoin' => true,  // ADD THIS
+                    'fill' => true              // ADD THIS
+                ),
+                'g' => array(
+                    'fill' => true,
+                    'stroke' => true  // ADD THIS
+                ),
+                'rect' => array(
+                    'x' => true,
+                    'y' => true,
+                    'width' => true,
+                    'height' => true,
+                    'rx' => true,
+                    'fill' => true,    // ADD THIS
+                    'stroke' => true   // ADD THIS
+                ),
+                'line' => array(
+                    'x1' => true,
+                    'y1' => true,
+                    'x2' => true,
+                    'y2' => true,
+                    'stroke' => true,       // ADD THIS
+                    'stroke-width' => true  // ADD THIS
+                ),
+                'polyline' => array(
+                    'points' => true,
+                    'stroke' => true,       // ADD THIS
+                    'fill' => true          // ADD THIS
+                ),
             );
 
             echo wp_kses($svg, $allowed_svg);
@@ -349,24 +385,24 @@ class Woo_Side_Cart_Settings
 <?php
     }
 
-public function enqueue_admin_assets($hook)
-{
-    // 1. Define your specific page hook
-    // The format is usually: 'settings_page_' + your_menu_slug
-    $my_settings_page = 'settings_page_woo_side_cart_settings';
+    public function enqueue_admin_assets($hook)
+    {
+        // 1. Define your specific page hook
+        // The format is usually: 'settings_page_' + your_menu_slug
+        $my_settings_page = 'settings_page_woo_side_cart_settings';
 
-    // 2. Check if the current page matches YOUR settings page
-    if ( $hook !== $my_settings_page ) {
-        return;
+        // 2. Check if the current page matches YOUR settings page
+        if ($hook !== $my_settings_page) {
+            return;
+        }
+
+        // 3. Safe to enqueue
+        wp_enqueue_script(
+            'woo-side-cart-admin',
+            CART_BOOSTER_URL . 'assets/js/admin.js',
+            array('jquery'),
+            CART_BOOSTER_VERSION,
+            true
+        );
     }
-
-    // 3. Safe to enqueue
-    wp_enqueue_script(
-        'woo-side-cart-admin',
-        WOO_SIDE_CART_URL . 'assets/js/admin.js',
-        array('jquery'),
-        WOO_SIDE_CART_VERSION,
-        true
-    );
-}
 }

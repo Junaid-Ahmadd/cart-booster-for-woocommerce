@@ -46,18 +46,18 @@ class Woo_Side_Cart_Main
         // JavaScript
         wp_enqueue_script(
             'woo-side-cart',
-            WOO_SIDE_CART_URL . 'assets/js/side-cart.js',
+            CART_BOOSTER_URL . 'assets/js/side-cart.js',
             array('jquery'),
-            WOO_SIDE_CART_VERSION,
+            CART_BOOSTER_VERSION,
             true
         );
 
         // CSS
         wp_enqueue_style(
             'woo-side-cart',
-            WOO_SIDE_CART_URL . 'assets/css/side-cart.css',
+            CART_BOOSTER_URL . 'assets/css/side-cart.css',
             array(),
-            WOO_SIDE_CART_VERSION
+            CART_BOOSTER_VERSION
         );
 
         // Localize script
@@ -82,11 +82,60 @@ class Woo_Side_Cart_Main
         <a href="#" class="woo-side-cart-trigger" aria-label="<?php esc_attr_e('View Cart', 'cart-booster-for-woocommerce'); ?>">
             <?php
             $allowed_svg = array(
-                'svg' => array('viewbox' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true, 'stroke-linecap' => true, 'stroke-linejoin' => true, 'aria-hidden' => true, 'class' => true, 'width' => true, 'height' => true),
-                'path' => array('d' => true, 'fill' => true, 'stroke' => true),
-                'circle' => array('cx' => true, 'cy' => true, 'r' => true),
-                'line' => array('x1' => true, 'y1' => true, 'x2' => true, 'y2' => true),
-                'rect' => array('x' => true, 'y' => true, 'width' => true, 'height' => true, 'rx' => true)
+                'svg' => array(
+                    'viewbox' => true,
+                    'fill' => true,
+                    'stroke' => true,
+                    'stroke-width' => true,
+                    'stroke-linecap' => true,
+                    'stroke-linejoin' => true,
+                    'version' => true,  // ADD THIS
+                    'class' => true,
+                    'width' => true,
+                    'height' => true
+                ),
+                'path' => array(
+                    'd' => true,
+                    'fill' => true,
+                    'stroke' => true,
+                    'fill-rule' => true,      // ADD THIS
+                    'clip-rule' => true       // ADD THIS
+                ),
+                'circle' => array(
+                    'cx' => true,
+                    'cy' => true,
+                    'r' => true,
+                    'stroke' => true,           // ADD THIS
+                    'stroke-width' => true,     // ADD THIS
+                    'stroke-linejoin' => true,  // ADD THIS
+                    'fill' => true              // ADD THIS
+                ),
+                'g' => array(
+                    'fill' => true,
+                    'stroke' => true  // ADD THIS
+                ),
+                'rect' => array(
+                    'x' => true,
+                    'y' => true,
+                    'width' => true,
+                    'height' => true,
+                    'rx' => true,
+                    'fill' => true,    // ADD THIS
+                    'stroke' => true   // ADD THIS
+                ),
+                'line' => array(
+                    'x1' => true,
+                    'y1' => true,
+                    'x2' => true,
+                    'y2' => true,
+                    'stroke' => true,       // ADD THIS
+                    'stroke-width' => true  // ADD THIS
+                ),
+                'polyline' => array(
+                    'points' => true,
+                    'stroke' => true,       // ADD THIS
+                    'fill' => true          // ADD THIS
+                ),
             );
             echo wp_kses($svg, $allowed_svg);
             ?>
@@ -96,7 +145,7 @@ class Woo_Side_Cart_Main
 
         <div class="woo-side-cart-drawer">
             <div class="woo-side-cart-wrapper">
-                <!-- Will be filled by fragments -->
+                <?php echo $this->get_cart_content_html(); ?>
             </div>
         </div>
     <?php
@@ -181,8 +230,8 @@ class Woo_Side_Cart_Main
                                 $active_subtotal = $cart->get_product_subtotal($_product, $cart_item['quantity']);
 
                                 // 4. Output: <del>Regular</del> <ins>Sale</ins>
-                                echo '<del class="original-price">' . wp_kses_post($regular_subtotal) . '</del>';
                                 echo '<ins class="sale-price" style="text-decoration: none; margin-left: 5px;">' . wp_kses_post($active_subtotal) . '</ins>';
+                                echo '<del class="original-price">' . wp_kses_post($regular_subtotal) . '</del>';
                             } else {
                                 // Not on sale? Just show the standard subtotal
                                 echo wp_kses_post($cart->get_product_subtotal($_product, $cart_item['quantity']));
@@ -234,35 +283,52 @@ class Woo_Side_Cart_Main
         return $fragments;
     }
 
-    public function ajax_update_cart()
-    {
-        check_ajax_referer('woo_side_cart_nonce', 'nonce');
+public function ajax_update_cart()
+{
+    check_ajax_referer('woo_side_cart_nonce', 'nonce');
 
-        if (!isset($_POST['cart_key']) || !isset($_POST['new_qty'])) {
-            wp_send_json_error(array('message' => 'Missing data'));
-        }
-
-        // Use wp_unslash first, then sanitize
-        $cart_key = sanitize_text_field(wp_unslash($_POST['cart_key']));
-        $new_qty = absint($_POST['new_qty']);
-
-        if ($new_qty === 0) {
-            WC()->cart->remove_cart_item($cart_key);
-        } else {
-            WC()->cart->set_quantity($cart_key, $new_qty);
-        }
-
-        WC()->cart->calculate_totals();
-
-        // 1. Get your Side Cart HTML
-        $fragments = array();
-        $fragments = $this->cart_fragment($fragments);
-
-        // 2. Send Success with EXTRA data
-        wp_send_json_success(array(
-            'fragments' => $fragments,
-            'cart_hash' => WC()->cart->get_cart_hash(),
-            'cart_count' => WC()->cart->get_cart_contents_count() // <--- Add this!
-        ));
+    if (!isset($_POST['cart_key']) || !isset($_POST['new_qty'])) {
+        wp_send_json_error(array('message' => 'Missing data'));
     }
+
+    $cart_key = sanitize_text_field(wp_unslash($_POST['cart_key']));
+    $new_qty = absint($_POST['new_qty']);
+
+    if ($new_qty === 0) {
+        WC()->cart->remove_cart_item($cart_key);
+    } else {
+        WC()->cart->set_quantity($cart_key, $new_qty);
+    }
+
+    WC()->cart->calculate_totals();
+
+    // Manually build all fragments by calling your own methods
+    $fragments = array();
+    
+    // Cart content fragment
+    ob_start();
+    ?>
+    <div class="woo-side-cart-wrapper">
+        <?php echo $this->get_cart_content_html(); ?>
+    </div>
+    <?php
+    $fragments['.woo-side-cart-wrapper'] = ob_get_clean();
+    
+    // Trigger other classes to add their fragments
+    // Shipping bar
+    $shipping_bar = Woo_Side_Cart_Shipping_Bar::get_instance();
+    ob_start();
+    $shipping_bar->render_shipping_bar_content();
+    $fragments['.woo-shipping-bar-wrapper'] = ob_get_clean();
+    
+    // Cross-sells
+    $cross_sells = Woo_Side_Cart_Cross_Sells::get_instance();
+    $fragments['.woo-cross-sells-wrapper'] = $cross_sells->render_cross_sells();
+
+    wp_send_json_success(array(
+        'fragments' => $fragments,
+        'cart_hash' => WC()->cart->get_cart_hash(),
+        'cart_count' => WC()->cart->get_cart_contents_count()
+    ));
+}
 }

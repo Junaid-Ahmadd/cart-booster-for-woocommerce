@@ -42,9 +42,9 @@ class Woo_Side_Cart_Shipping_Bar
     {
         wp_enqueue_style(
             'woo-side-cart',
-            WOO_SIDE_CART_URL . 'assets/css/side-cart.css',
+            CART_BOOSTER_URL . 'assets/css/side-cart.css',
             array(),
-            WOO_SIDE_CART_VERSION
+            CART_BOOSTER_VERSION
         );
     }
 
@@ -134,10 +134,12 @@ class Woo_Side_Cart_Shipping_Bar
                 <?php else : ?>
                     <span class="progress-message">
                         <?php
+                        /* translators: %1$s: Remaining amount, %2$s: Opening strong tag, %3$s: Closing strong tag */
                         printf(
-                            /* translators: %s: The remaining amount required for free shipping (e.g. $10.00) */
-                            esc_html__('Add %s more to get FREE shipping', 'cart-booster-for-woocommerce'),
-                            '<strong>' . wp_kses_post(wc_price($progress['remaining'])) . '</strong>'
+                            esc_html__('Add %1$s more to get %2$sFREE Shipping%3$s', 'cart-booster-for-woocommerce'),
+                            '<strong>' . wp_kses_post(wc_price($progress['remaining'])) . '</strong>', // %1$s
+                            '<strong>', // %2$s
+                            '</strong>' // %3$s
                         );
                         ?>
                     </span>
@@ -147,7 +149,6 @@ class Woo_Side_Cart_Shipping_Bar
             <div class="woo-shipping-bar-progress">
                 <div class="progress-bar-bg">
                     <div class="progress-bar-fill" style="width: <?php echo esc_attr($progress['percentage']); ?>%;">
-                        <span class="progress-percentage"><?php echo esc_html(round($progress['percentage'])); ?>%</span>
                     </div>
                 </div>
             </div>

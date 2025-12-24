@@ -46,7 +46,7 @@
     --wsc-shipping-bar-fill: #28a745;
     
     /* Cross-Sells */
-    --wsc-cross-sells-price-sale: #e74c3c;
+    --wsc-cross-sells-price-sale: black;
 }
 
 /* ============================================
@@ -160,18 +160,17 @@ body.woo-side-cart-open {
    HEADER
    ============================================ */
 .woo-side-cart-drawer .woo-side-cart-header {
-    padding: 18px 16px 16px;
+    padding: 26px 20px 25px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-shrink: 0;
-    border-bottom: 1px solid var(--wsc-border-color);
 }
 
 .woo-side-cart-drawer .woo-side-cart-header .woo-side-cart-title {
     margin: 0;
     padding: 0;
-    font-size: 18px;
+    font-size: 26px;
     font-weight: 600;
     color: var(--wsc-text-color);
 }
@@ -199,10 +198,7 @@ body.woo-side-cart-open {
    SHIPPING PROGRESS BAR
    ============================================ */
 .woo-side-cart-drawer .woo-shipping-bar-wrapper {
-    padding: 15px 20px;
-    background-color: var(--wsc-shipping-bg);
-    border-top: 1px solid var(--wsc-border-color);
-    border-bottom: 1px solid var(--wsc-border-color);
+    padding: 0 20px;
     margin: 0;
 }
 
@@ -213,8 +209,13 @@ body.woo-side-cart-open {
 }
 
 .woo-side-cart-drawer .woo-shipping-bar-message .success-message {
-    color: var(--wsc-shipping-success);
+    color: black;
     font-weight: 600;
+}
+
+.woo-side-cart-drawer .woo-shipping-bar-message .success-message strong {
+    color: #82a8d3;
+    font-weight: bold;
 }
 
 .woo-side-cart-drawer .woo-shipping-bar-message .progress-message {
@@ -232,7 +233,7 @@ body.woo-side-cart-open {
 
 .woo-side-cart-drawer .progress-bar-bg {
     width: 100%;
-    height: 20px;
+    height: 15px;
     background-color: #e0e0e0;
     border-radius: 10px;
     overflow: hidden;
@@ -240,7 +241,7 @@ body.woo-side-cart-open {
 
 .woo-side-cart-drawer .progress-bar-fill {
     height: 100%;
-    background: var(--wsc-shipping-bar-fill);
+    background: #1bae4b;
     border-radius: 10px;
     transition: width 0.5s ease;
     display: flex;
@@ -249,27 +250,9 @@ body.woo-side-cart-open {
     padding-right: 8px;
 }
 
-.woo-side-cart-drawer .progress-percentage {
-    color: #ffffff;
-    font-size: 11px;
-    font-weight: 600;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-}
 
-/* Hide percentage when too low */
-.woo-side-cart-drawer .progress-bar-fill[style*="width: 0"] .progress-percentage,
-.woo-side-cart-drawer .progress-bar-fill[style*="width: 1%"] .progress-percentage,
-.woo-side-cart-drawer .progress-bar-fill[style*="width: 2%"] .progress-percentage,
-.woo-side-cart-drawer .progress-bar-fill[style*="width: 3%"] .progress-percentage,
-.woo-side-cart-drawer .progress-bar-fill[style*="width: 4%"] .progress-percentage,
-.woo-side-cart-drawer .progress-bar-fill[style*="width: 5%"] .progress-percentage,
-.woo-side-cart-drawer .progress-bar-fill[style*="width: 6%"] .progress-percentage,
-.woo-side-cart-drawer .progress-bar-fill[style*="width: 7%"] .progress-percentage,
-.woo-side-cart-drawer .progress-bar-fill[style*="width: 8%"] .progress-percentage,
-.woo-side-cart-drawer .progress-bar-fill[style*="width: 9%"] .progress-percentage,
-.woo-side-cart-drawer .progress-bar-fill[style*="width: 10%"] .progress-percentage {
-    display: none;
-}
+
+
 
 /* ============================================
    CART CONTENT
@@ -277,7 +260,7 @@ body.woo-side-cart-open {
 .woo-side-cart-drawer .woo-side-cart-content {
     flex-grow: 1;
     overflow-y: auto;
-    padding: 24px 16px;
+    padding: 24px 20px;
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -327,6 +310,7 @@ body.woo-side-cart-open {
     font-weight: 700;
     text-decoration: none;
     margin: 0;
+    width: fit-content;
 }
 
 .woo-side-cart-drawer .product-name:hover {
@@ -414,10 +398,16 @@ body.woo-side-cart-open {
 }
 
 .woo-side-cart-drawer .woo-side-cart-item-price {
+    display: flex;
+    flex-direction: column;
     font-size: 14px;
     font-weight: 600;
     text-align: right;
     margin-left: auto;
+}
+
+.woo-side-cart-drawer .woo-side-cart-item-price .original-price {
+  color: #999;
 }
 
 /* ============================================
@@ -452,7 +442,7 @@ body.woo-side-cart-open {
     background: none;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 40px;
+    font-size: 50px;
     padding: 0;
     display: flex;
     align-items: center;
@@ -504,6 +494,8 @@ body.woo-side-cart-open {
     justify-content: center;
     align-items: center;
     gap: 24px;
+    height: 208px;
+    background-color: #e0f1ff;
 }
 
 .woo-side-cart-drawer .cross-sell-item .product-image {
@@ -548,28 +540,27 @@ body.woo-side-cart-open {
 }
 
 .woo-side-cart-drawer .add-to-cart-btn {
-    width: 100%;
+    width: 60%;
     padding: 10px 16px;
-    background: var(--wsc-button-bg);
-    color: var(--wsc-button-color);
+    background: white;
+    color: #F7540E;
     text-align: center;
-    border-radius: 4px;
-    border: none;
+    border-radius: 50px;
+    border: 1px solid #F7540E;
     cursor: pointer;
     font-size: 14px;
+    font-weight: 700;
     transition: background 0.3s ease;
 }
 
-.woo-side-cart-drawer .add-to-cart-btn:hover {
-    background: var(--wsc-button-hover-bg);
-}
+
 
 
 /* ============================================
    FOOTER
    ============================================ */
 .woo-side-cart-drawer .woo-side-cart-footer {
-    padding: 20px 16px;
+    padding: 20px 20px;
     flex-shrink: 0;
     border-top: 1px solid var(--wsc-border-color);
     display: flex;
@@ -580,27 +571,28 @@ body.woo-side-cart-open {
 .woo-side-cart-drawer .cart-subtotal {
     display: flex;
     justify-content: space-between;
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 20px;
+    font-weight: 700;
 }
 
 .woo-side-cart-drawer .checkout-button {
     display: block;
     width: 100%;
-    background: var(--wsc-button-bg);
+    background: #F87C56;
     color: var(--wsc-button-color);
     text-align: center;
     padding: 14px 20px;
-    border-radius: 4px;
+    border-radius: 100px;
+    border: 2px solid #F87C56;
     text-decoration: none;
-    font-size: 16px;
+    font-size: 22px;
     font-weight: 600;
     transition: background 0.2s ease;
 }
 
 .woo-side-cart-drawer .checkout-button:hover {
-    background: var(--wsc-button-hover-bg);
-    color: var(--wsc-button-color);
+    background: white;
+    color: black;
 }
 
 

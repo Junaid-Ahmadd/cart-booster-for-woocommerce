@@ -43,16 +43,16 @@ class Woo_Side_Cart_Cross_Sells
     {
         wp_enqueue_style(
             'woo-side-cart',
-            WOO_SIDE_CART_URL . 'assets/css/side-cart.css',
+            CART_BOOSTER_URL . 'assets/css/side-cart.css',
             array(),
-            WOO_SIDE_CART_VERSION
+            CART_BOOSTER_VERSION
         );
 
         wp_enqueue_script(
             'woo-cross-sells',
-            WOO_SIDE_CART_URL . 'assets/js/cross-sells.js',
+            CART_BOOSTER_URL . 'assets/js/cross-sells.js',
             array('jquery', 'woo-side-cart'),
-            WOO_SIDE_CART_VERSION,
+            CART_BOOSTER_VERSION,
             true
         );
     }
@@ -183,7 +183,7 @@ class Woo_Side_Cart_Cross_Sells
                     <?php foreach ($products as $product) : ?>
                         <div class="cross-sell-item">
                             <a href="<?php echo esc_url($product->get_permalink()); ?>" class="product-image">
-                                <?php echo wp_kses_post($_product->get_image('thumbnail')); ?>
+                                <?php echo wp_kses_post($product->get_image('thumbnail')); ?>
                             </a>
 
                             <div class="product-details">
@@ -198,7 +198,7 @@ class Woo_Side_Cart_Cross_Sells
                                 <a href="<?php echo esc_url('?add-to-cart=' . $product->get_id()); ?>"
                                     class="add-to-cart-btn"
                                     data-product-id="<?php echo esc_attr($product->get_id()); ?>">
-                                    <?php esc_html_e('Add', 'cart-booster-for-woocommerce'); ?>
+                                    <?php esc_html_e('ADD', 'cart-booster-for-woocommerce'); ?>
                                 </a>
                             </div>
                         </div>

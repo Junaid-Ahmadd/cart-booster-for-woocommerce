@@ -23,9 +23,9 @@ if (!defined('ABSPATH')) {
 
 
 // Define plugin constants
-define('WOO_SIDE_CART_VERSION', '1.0.0');
-define('WOO_SIDE_CART_PATH', plugin_dir_path(__FILE__));
-define('WOO_SIDE_CART_URL', plugin_dir_url(__FILE__));
+define('CART_BOOSTER_VERSION', '1.0.0');
+define('CART_BOOSTER_PATH', plugin_dir_path(__FILE__));
+define('CART_BOOSTER_URL', plugin_dir_url(__FILE__));
 
 
 // Check if WooCommerce is active
