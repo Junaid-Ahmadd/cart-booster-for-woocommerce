@@ -70,37 +70,42 @@
    FLOATING TRIGGER BUTTON
    ============================================ */
 .woo-side-cart-trigger {
-    position: fixed !important;
-    bottom: 20px !important;
-    right: 20px !important;
-    z-index: 9999 !important;
-    background-color: var(--wsc-trigger-bg);
-    color: var(--wsc-trigger-color);
-    width: var(--wsc-trigger-size);
-    height: var(--wsc-trigger-size);
-    border-radius: 50%;
-    border: none;
-    padding: 0;
-    margin: 0;
-    display: flex !important;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow: var(--wsc-trigger-shadow);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    text-decoration: none !important;
+    position: relative;
+    padding: 8px;
     cursor: pointer;
-}
-
-.woo-side-cart-trigger:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-    color: #000000;
+    text-decoration: none;
+    color: inherit;
 }
 
 .woo-side-cart-trigger svg {
     width: 28px;
     height: 28px;
     display: block;
+}
+
+.woo-side-cart-trigger .cart-count-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #e74c3c;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.woo-side-cart-trigger-inline,
+.woo-side-cart-trigger {
+    transition: opacity 0.2s ease;
 }
 
 /* ============================================

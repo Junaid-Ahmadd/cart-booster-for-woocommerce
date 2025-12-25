@@ -39,6 +39,9 @@ class Woo_Side_Cart_Main
 
         // Register fragments
         add_filter('woocommerce_add_to_cart_fragments', array($this, 'cart_fragment'));
+
+        // Add shortcode for cart icon
+        add_shortcode('cart_booster_icon', array($this, 'cart_icon_shortcode'));
     }
 
     public function enqueue_assets()
@@ -70,76 +73,8 @@ class Woo_Side_Cart_Main
 
     public function render_cart_html()
     {
-        // Get the selected icon key
-        $selected_icon_key = get_option('woo_side_cart_icon', 'cart-classic');
 
-        // Fetch the icon array from the Settings class
-        $icons = Woo_Side_Cart_Settings::get_cart_icons();
-
-        // Get the SVG string (fallback to classic if key doesn't exist)
-        $svg = isset($icons[$selected_icon_key]) ? $icons[$selected_icon_key] : $icons['cart-classic'];
-?>
-        <a href="#" class="woo-side-cart-trigger" aria-label="<?php esc_attr_e('View Cart', 'cart-booster-for-woocommerce'); ?>">
-            <?php
-            $allowed_svg = array(
-                'svg' => array(
-                    'viewbox' => true,
-                    'fill' => true,
-                    'stroke' => true,
-                    'stroke-width' => true,
-                    'stroke-linecap' => true,
-                    'stroke-linejoin' => true,
-                    'version' => true,  // ADD THIS
-                    'class' => true,
-                    'width' => true,
-                    'height' => true
-                ),
-                'path' => array(
-                    'd' => true,
-                    'fill' => true,
-                    'stroke' => true,
-                    'fill-rule' => true,      // ADD THIS
-                    'clip-rule' => true       // ADD THIS
-                ),
-                'circle' => array(
-                    'cx' => true,
-                    'cy' => true,
-                    'r' => true,
-                    'stroke' => true,           // ADD THIS
-                    'stroke-width' => true,     // ADD THIS
-                    'stroke-linejoin' => true,  // ADD THIS
-                    'fill' => true              // ADD THIS
-                ),
-                'g' => array(
-                    'fill' => true,
-                    'stroke' => true  // ADD THIS
-                ),
-                'rect' => array(
-                    'x' => true,
-                    'y' => true,
-                    'width' => true,
-                    'height' => true,
-                    'rx' => true,
-                    'fill' => true,    // ADD THIS
-                    'stroke' => true   // ADD THIS
-                ),
-                'line' => array(
-                    'x1' => true,
-                    'y1' => true,
-                    'x2' => true,
-                    'y2' => true,
-                    'stroke' => true,       // ADD THIS
-                    'stroke-width' => true  // ADD THIS
-                ),
-                'polyline' => array(
-                    'points' => true,
-                    'stroke' => true,       // ADD THIS
-                    'fill' => true          // ADD THIS
-                ),
-            );
-            echo wp_kses($svg, $allowed_svg);
-            ?>
-        </a>
+    ?>
 
         <div class="woo-side-cart-overlay"></div>
 
@@ -277,11 +212,12 @@ class Woo_Side_Cart_Main
         <div class="woo-side-cart-wrapper">
             <?php echo $this->get_cart_content_html(); ?>
         </div>
-<?php
+    <?php
         $fragments['.woo-side-cart-wrapper'] = ob_get_clean();
 
         return $fragments;
     }
+
 
 public function ajax_update_cart()
 {
@@ -334,4 +270,35 @@ public function ajax_update_cart()
         'cart_count' => WC()->cart->get_cart_contents_count()
     ));
 }
+
+/**
+     * Shortcode for cart icon: [cart_booster_icon]
+     */
+    public function cart_icon_shortcode()
+    {
+
+        $cart_count = WC()->cart->get_cart_contents_count();
+        $icon_key = get_option('woo_side_cart_icon', 'cart-classic');
+        $icons = Woo_Side_Cart_Settings::get_cart_icons();
+        $svg = isset($icons[$icon_key]) ? $icons[$icon_key] : $icons['cart-classic'];
+
+        $allowed_svg = array(
+            'svg' => array('viewbox' => true, 'fill' => true, 'stroke' => true, 'stroke-width' => true, 'stroke-linecap' => true, 'stroke-linejoin' => true, 'class' => true, 'width' => true, 'height' => true, 'version' => true),
+            'path' => array('d' => true, 'fill' => true, 'stroke' => true, 'fill-rule' => true, 'clip-rule' => true),
+            'circle' => array('cx' => true, 'cy' => true, 'r' => true, 'stroke' => true, 'fill' => true),
+            'g' => array('fill' => true, 'stroke' => true),
+        );
+
+        ob_start();
+        ?>
+        <a href="#" class="woo-side-cart-trigger" aria-label="<?php esc_attr_e('View Cart', 'cart-booster-for-woocommerce'); ?>">
+            <?php echo wp_kses($svg, $allowed_svg); ?>
+            <?php if ($cart_count > 0) : ?>
+                <span class="cart-count-badge"><?php echo esc_html($cart_count); ?></span>
+            <?php endif; ?>
+        </a>
+        <?php
+        return ob_get_clean();
+    }
+
 }
