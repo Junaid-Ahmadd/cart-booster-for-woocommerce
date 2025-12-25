@@ -329,6 +329,31 @@ body.woo-side-cart-open {
     gap: 10px;
 }
 
+/* Variation Names */
+.woo-side-cart-drawer .variation {
+  display: flex;
+}
+
+.woo-side-cart-drawer .variation > dt {
+  display: none;
+}
+
+.woo-side-cart-drawer .variation > dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.woo-side-cart-item-details dl.variation dd::after {
+    content: ",";
+    white-space: pre; 
+}
+
+
+.woo-side-cart-item-details dl.variation dd:last-child::after {
+    content: "";
+}
+
 /* Quantity Controls */
 .woo-side-cart-drawer .quantity-controls {
     display: flex;

@@ -129,8 +129,15 @@ class Woo_Side_Cart_Main
 
                         <div class="woo-side-cart-item-details">
                             <a href="<?php echo esc_url($_product->get_permalink()); ?>" class="product-name">
-                                <?php echo esc_html($_product->get_name()); ?>
+                                <?php
+                                // If it's a variation, show just the parent name (e.g. "T-Shirt")
+                                echo esc_html($_product->is_type('variation') ? $_product->get_parent_data()['title'] : $_product->get_name());
+                                ?>
                             </a>
+
+                            <?php if (isset($cart_item['variation'])) {
+                                echo wc_get_formatted_variation($cart_item['variation'], false);
+                            } ?>
 
                             <div class="woo-side-cart-item-details-inner">
                                 <div class="quantity-controls" data-cart-key="<?php echo esc_attr($cart_item_key); ?>">
