@@ -4,13 +4,13 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class Woo_Side_Cart_Settings
+class QuantWP_SideCart_Settings
 {
 
     protected static $instance = null;
 
-    private $option_group = 'woo_side_cart_settings';
-    private $page_slug = 'woo_side_cart_settings';
+    private $option_group = 'quantwp_sidecart_settings';
+    private $page_slug = 'quantwp_sidecart_settings';
 
     public static function get_instance()
     {
@@ -71,8 +71,8 @@ class Woo_Side_Cart_Settings
     public function add_settings_page()
     {
         add_options_page(
-            __('Side Cart Settings', 'cart-booster-for-woocommerce'),
-            __('Side Cart', 'cart-booster-for-woocommerce'),
+            __('Side Cart Settings', 'quantwp-sidecart-for-woocommerce'),
+            __('Side Cart', 'quantwp-sidecart-for-woocommerce'),
             'manage_options',
             $this->page_slug,
             array($this, 'render_settings_page')
@@ -83,7 +83,7 @@ class Woo_Side_Cart_Settings
     {
         register_setting(
             $this->option_group,
-            'woo_side_cart_auto_open',
+            'quantwp_sidecart_auto_open',
             array(
                 'type' => 'boolean',
                 'default' => 1,
@@ -95,7 +95,7 @@ class Woo_Side_Cart_Settings
         // Shipping Bar Settings
         register_setting(
             $this->option_group,
-            'woo_side_cart_shipping_bar_enabled',
+            'quantwp_sidecart_shipping_bar_enabled',
             array(
                 'type' => 'boolean',
                 'default' => 1,
@@ -105,7 +105,7 @@ class Woo_Side_Cart_Settings
 
         register_setting(
             $this->option_group,
-            'woo_side_cart_shipping_threshold',
+            'quantwp_sidecart_shipping_threshold',
             array(
                 'type' => 'number',
                 'default' => 50,
@@ -116,7 +116,7 @@ class Woo_Side_Cart_Settings
         // Cross-Sell Settings
         register_setting(
             $this->option_group,
-            'woo_side_cart_cross_sells_enabled',
+            'quantwp_sidecart_cross_sells_enabled',
             array(
                 'type' => 'boolean',
                 'default' => 1,
@@ -126,7 +126,7 @@ class Woo_Side_Cart_Settings
 
         register_setting(
             $this->option_group,
-            'woo_side_cart_cross_sells_limit',
+            'quantwp_sidecart_cross_sells_limit',
             array(
                 'type' => 'integer',
                 'default' => 6,
@@ -136,7 +136,7 @@ class Woo_Side_Cart_Settings
 
         register_setting(
             $this->option_group,
-            'woo_side_cart_icon',
+            'quantwp_sidecart_icon',
             array(
                 'type' => 'string',
                 'default' => 'cart-classic',
@@ -150,7 +150,7 @@ class Woo_Side_Cart_Settings
      */
     public function render_icon_selector()
     {
-        $selected_icon = get_option('woo_side_cart_icon', 'cart-classic');
+        $selected_icon = get_option('quantwp_sidecart_icon', 'cart-classic');
         // Fetch secure icons from this class using self::
         $icons = self::get_cart_icons();
 
@@ -168,7 +168,7 @@ class Woo_Side_Cart_Settings
         foreach ($icons as $key => $svg) {
             $class = ($selected_icon === $key) ? 'selected' : '';
             echo '<label class="side-cart-option ' . esc_attr($class) . '">';
-            echo '<input type="radio" name="woo_side_cart_icon" value="' . esc_attr($key) . '" ' . checked($selected_icon, $key, false) . '>';
+            echo '<input type="radio" name="quantwp_sidecart_icon" value="' . esc_attr($key) . '" ' . checked($selected_icon, $key, false) . '>';
             // Define allowed SVG tags for wp_kses
             $allowed_svg = array(
                 'svg' => array(
@@ -244,7 +244,7 @@ class Woo_Side_Cart_Settings
         }
 
 
-        settings_errors('woo_side_cart_messages');
+        settings_errors('quantwp_sidecart_messages');
 ?>
 
         <div class="wrap">
@@ -254,23 +254,23 @@ class Woo_Side_Cart_Settings
                 <?php settings_fields($this->option_group); ?>
 
                 <!-- General Settings -->
-                <h2><?php esc_html_e('General Settings', 'cart-booster-for-woocommerce'); ?></h2>
+                <h2><?php esc_html_e('General Settings', 'quantwp-sidecart-for-woocommerce'); ?></h2>
                 <table class="form-table">
 
                     <tr>
                         <th scope="row">
-                            <label for="woo_side_cart_auto_open">
-                                <?php esc_html_e('Auto-Open Cart', 'cart-booster-for-woocommerce'); ?>
+                            <label for="quantwp_sidecart_auto_open">
+                                <?php esc_html_e('Auto-Open Cart', 'quantwp-sidecart-for-woocommerce'); ?>
                             </label>
                         </th>
                         <td>
                             <input type="checkbox"
-                                name="woo_side_cart_auto_open"
-                                id="woo_side_cart_auto_open"
+                                name="quantwp_sidecart_auto_open"
+                                id="quantwp_sidecart_auto_open"
                                 value="1"
-                                <?php checked(get_option('woo_side_cart_auto_open', 1), 1); ?>>
+                                <?php checked(get_option('quantwp_sidecart_auto_open', 1), 1); ?>>
                             <p class="description">
-                                <?php esc_html_e('Automatically open side cart when item is added to cart.', 'cart-booster-for-woocommerce'); ?>
+                                <?php esc_html_e('Automatically open side cart when item is added to cart.', 'quantwp-sidecart-for-woocommerce'); ?>
                             </p>
                         </td>
                     </tr>
@@ -278,37 +278,37 @@ class Woo_Side_Cart_Settings
                 </table>
 
                 <!-- Shipping Bar Settings -->
-                <h2><?php esc_html_e('Shipping Progress Bar', 'cart-booster-for-woocommerce'); ?></h2>
+                <h2><?php esc_html_e('Shipping Progress Bar', 'quantwp-sidecart-for-woocommerce'); ?></h2>
                 <table class="form-table">
                     <tr>
                         <th scope="row">
-                            <label for="woo_side_cart_shipping_bar_enabled">
-                                <?php esc_html_e('Enable Shipping Bar', 'cart-booster-for-woocommerce'); ?>
+                            <label for="quantwp_sidecart_shipping_bar_enabled">
+                                <?php esc_html_e('Enable Shipping Bar', 'quantwp-sidecart-for-woocommerce'); ?>
                             </label>
                         </th>
                         <td>
                             <input type="checkbox"
-                                name="woo_side_cart_shipping_bar_enabled"
-                                id="woo_side_cart_shipping_bar_enabled"
+                                name="quantwp_sidecart_shipping_bar_enabled"
+                                id="quantwp_sidecart_shipping_bar_enabled"
                                 value="1"
-                                <?php checked(get_option('woo_side_cart_shipping_bar_enabled', 1), 1); ?>>
+                                <?php checked(get_option('quantwp_sidecart_shipping_bar_enabled', 1), 1); ?>>
                             <p class="description">
-                                <?php esc_html_e('Show free shipping progress bar in side cart.', 'cart-booster-for-woocommerce'); ?>
+                                <?php esc_html_e('Show free shipping progress bar in side cart.', 'quantwp-sidecart-for-woocommerce'); ?>
                             </p>
                         </td>
                     </tr>
 
                     <tr>
                         <th scope="row">
-                            <label for="woo_side_cart_shipping_threshold">
-                                <?php esc_html_e('Free Shipping Threshold', 'cart-booster-for-woocommerce'); ?>
+                            <label for="quantwp_sidecart_shipping_threshold">
+                                <?php esc_html_e('Free Shipping Threshold', 'quantwp-sidecart-for-woocommerce'); ?>
                             </label>
                         </th>
                         <td>
                             <input type="number"
-                                name="woo_side_cart_shipping_threshold"
-                                id="woo_side_cart_shipping_threshold"
-                                value="<?php echo esc_attr(get_option('woo_side_cart_shipping_threshold', 50)); ?>"
+                                name="quantwp_sidecart_shipping_threshold"
+                                id="quantwp_sidecart_shipping_threshold"
+                                value="<?php echo esc_attr(get_option('quantwp_sidecart_shipping_threshold', 50)); ?>"
                                 min="0"
                                 step="0.01"
                                 class="regular-text">
@@ -316,7 +316,7 @@ class Woo_Side_Cart_Settings
                                 <?php
                                 printf(
                                     /* translators: %s: Currency symbol (e.g. USD, EUR) */
-                                    esc_html__('Minimum cart amount for free shipping. Enter amount in %s.', 'cart-booster-for-woocommerce'),
+                                    esc_html__('Minimum cart amount for free shipping. Enter amount in %s.', 'quantwp-sidecart-for-woocommerce'),
                                     esc_html(get_woocommerce_currency())
                                 );
                                 ?>
@@ -326,59 +326,59 @@ class Woo_Side_Cart_Settings
                 </table>
 
                 <!-- Cross-Sell Settings -->
-                <h2><?php esc_html_e('Cross-Sell Products', 'cart-booster-for-woocommerce'); ?></h2>
+                <h2><?php esc_html_e('Cross-Sell Products', 'quantwp-sidecart-for-woocommerce'); ?></h2>
                 <table class="form-table">
                     <tr>
                         <th scope="row">
-                            <label for="woo_side_cart_cross_sells_enabled">
-                                <?php esc_html_e('Enable Cross-Sells', 'cart-booster-for-woocommerce'); ?>
+                            <label for="quantwp_sidecart_cross_sells_enabled">
+                                <?php esc_html_e('Enable Cross-Sells', 'quantwp-sidecart-for-woocommerce'); ?>
                             </label>
                         </th>
                         <td>
                             <input type="checkbox"
-                                name="woo_side_cart_cross_sells_enabled"
-                                id="woo_side_cart_cross_sells_enabled"
+                                name="quantwp_sidecart_cross_sells_enabled"
+                                id="quantwp_sidecart_cross_sells_enabled"
                                 value="1"
-                                <?php checked(get_option('woo_side_cart_cross_sells_enabled', 1), 1); ?>>
+                                <?php checked(get_option('quantwp_sidecart_cross_sells_enabled', 1), 1); ?>>
                             <p class="description">
-                                <?php esc_html_e('Show cross-sell product carousel in side cart.', 'cart-booster-for-woocommerce'); ?>
+                                <?php esc_html_e('Show cross-sell product carousel in side cart.', 'quantwp-sidecart-for-woocommerce'); ?>
                             </p>
                         </td>
                     </tr>
 
                     <tr>
                         <th scope="row">
-                            <label for="woo_side_cart_cross_sells_limit">
-                                <?php esc_html_e('Products to Show', 'cart-booster-for-woocommerce'); ?>
+                            <label for="quantwp_sidecart_cross_sells_limit">
+                                <?php esc_html_e('Products to Show', 'quantwp-sidecart-for-woocommerce'); ?>
                             </label>
                         </th>
                         <td>
                             <input type="number"
-                                name="woo_side_cart_cross_sells_limit"
-                                id="woo_side_cart_cross_sells_limit"
-                                value="<?php echo esc_attr(get_option('woo_side_cart_cross_sells_limit', 6)); ?>"
+                                name="quantwp_sidecart_cross_sells_limit"
+                                id="quantwp_sidecart_cross_sells_limit"
+                                value="<?php echo esc_attr(get_option('quantwp_sidecart_cross_sells_limit', 6)); ?>"
                                 min="1"
                                 max="20"
                                 class="small-text">
                             <p class="description">
-                                <?php esc_html_e('Maximum number of cross-sell products to display (1-20).', 'cart-booster-for-woocommerce'); ?>
+                                <?php esc_html_e('Maximum number of cross-sell products to display (1-20).', 'quantwp-sidecart-for-woocommerce'); ?>
                             </p>
                         </td>
                     </tr>
                 </table>
 
-                <h2><?php esc_html_e('Cart Icon', 'cart-booster-for-woocommerce'); ?></h2>
+                <h2><?php esc_html_e('Cart Icon', 'quantwp-sidecart-for-woocommerce'); ?></h2>
                 <table class="form-table">
                     <tr>
-                        <th scope="row"><?php esc_html_e('Choose Icon', 'cart-booster-for-woocommerce'); ?></th>
+                        <th scope="row"><?php esc_html_e('Choose Icon', 'quantwp-sidecart-for-woocommerce'); ?></th>
                         <td>
                             <?php $this->render_icon_selector(); ?>
-                            <p class="description"><?php esc_html_e('Select the icon to display on your site trigger.', 'cart-booster-for-woocommerce'); ?></p>
+                            <p class="description"><?php esc_html_e('Select the icon to display on your site trigger.', 'quantwp-sidecart-for-woocommerce'); ?></p>
                         </td>
                     </tr>
                 </table>
 
-                <?php submit_button(__('Save Settings', 'cart-booster-for-woocommerce')); ?>
+                <?php submit_button(__('Save Settings', 'quantwp-sidecart-for-woocommerce')); ?>
             </form>
         </div>
 
@@ -389,7 +389,7 @@ class Woo_Side_Cart_Settings
     {
         // 1. Define your specific page hook
         // The format is usually: 'settings_page_' + your_menu_slug
-        $my_settings_page = 'settings_page_woo_side_cart_settings';
+        $my_settings_page = 'settings_page_quantwp_sidecart_settings';
 
         // 2. Check if the current page matches YOUR settings page
         if ($hook !== $my_settings_page) {
@@ -398,10 +398,10 @@ class Woo_Side_Cart_Settings
 
         // 3. Safe to enqueue
         wp_enqueue_script(
-            'woo-side-cart-admin',
-            CART_BOOSTER_URL . 'assets/js/admin.js',
+            'quantwp-sidecart-admin',
+            QUANTWP_URL . 'assets/js/admin.js',
             array('jquery'),
-            CART_BOOSTER_VERSION,
+            QUANTWP_VERSION,
             true
         );
     }

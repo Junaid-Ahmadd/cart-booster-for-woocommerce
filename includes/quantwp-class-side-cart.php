@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class Woo_Side_Cart_Main
+class QuantWP_SideCart_Main
 {
     protected static $instance = null;
 
@@ -31,55 +31,55 @@ class Woo_Side_Cart_Main
         add_action('wp_enqueue_scripts', array($this, 'enqueue_assets'));
 
         // Output cart HTML
-        add_action('wp_footer', array($this, 'render_cart_html'));
+        add_action('wp_footer', array($this, 'quantwp_render_cart_html'));
 
         // AJAX handlers
-        add_action('wp_ajax_woo_side_cart_update', array($this, 'ajax_update_cart'));
-        add_action('wp_ajax_nopriv_woo_side_cart_update', array($this, 'ajax_update_cart'));
+        add_action('wp_ajax_quantwp_update', array($this, 'quantwp_ajax_update_cart'));
+        add_action('wp_ajax_nopriv_quantwp_update', array($this, 'quantwp_ajax_update_cart'));
 
         // Register fragments
-        add_filter('woocommerce_add_to_cart_fragments', array($this, 'cart_fragment'));
+        add_filter('woocommerce_add_to_cart_fragments', array($this, 'quantwp_cart_fragment'));
 
         // Add shortcode for cart icon
-        add_shortcode('cart_booster_icon', array($this, 'cart_icon_shortcode'));
+        add_shortcode('quantwp_cart_shortcode', array($this, 'quantwp_icon_shortcode'));
     }
 
     public function enqueue_assets()
     {
         // JavaScript
         wp_enqueue_script(
-            'woo-side-cart',
-            CART_BOOSTER_URL . 'assets/js/side-cart.js',
+            'quantwp-sidecart',
+            QUANTWP_URL . 'assets/js/side-cart.js',
             array('jquery'),
-            CART_BOOSTER_VERSION,
+            QUANTWP_VERSION,
             true
         );
 
         // CSS
         wp_enqueue_style(
-            'woo-side-cart',
-            CART_BOOSTER_URL . 'assets/css/side-cart.css',
+            'quantwp-sidecart',
+            QUANTWP_URL . 'assets/css/side-cart.css',
             array(),
-            CART_BOOSTER_VERSION
+            QUANTWP_VERSION
         );
 
         // Localize script
-        wp_localize_script('woo-side-cart', 'wooSideCart', array(
+        wp_localize_script('quantwp-sidecart', 'quantwpData', array(
             'ajaxUrl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('woo_side_cart_nonce'),
-            'autoOpen' => (bool) get_option('woo_side_cart_auto_open', 1),
+            'nonce' => wp_create_nonce('quantwp_sidecart_nonce'),
+            'autoOpen' => (bool) get_option('quantwp_sidecart_auto_open', 1),
         ));
     }
 
-    public function render_cart_html()
+    public function quantwp_render_cart_html()
     {
 
 ?>
 
-        <div class="woo-side-cart-overlay"></div>
+        <div class="quantwp-sidecart-overlay"></div>
 
-        <div class="woo-side-cart-drawer">
-            <div class="woo-side-cart-wrapper">
+        <div class="quantwp-sidecart-drawer">
+            <div class="quantwp-sidecart-wrapper">
                 <?php echo $this->get_cart_content_html(); ?>
             </div>
         </div>
@@ -94,25 +94,25 @@ class Woo_Side_Cart_Main
 
         ob_start();
     ?>
-        <header class="woo-side-cart-header">
-            <h4 class="woo-side-cart-title">
+        <header class="quantwp-sidecart-header">
+            <h4 class="quantwp-sidecart-title">
                 <?php
                 printf(
                     /* translators: %d: The number of items in the cart */
-                    esc_html__('Cart (%d)', 'cart-booster-for-woocommerce'),
+                    esc_html__('Cart (%d)', 'quantwp-sidecart-for-woocommerce'),
                     absint($cart->get_cart_contents_count())
                 );
                 ?>
             </h4>
-            <button class="woo-close-button" type="button">&times;</button>
+            <button class="quantwp-close-button" type="button">&times;</button>
         </header>
 
         <?php
         // Shipping bar will be added here by Shipping_Bar class
-        do_action('woo_side_cart_after_header');
+        do_action('quantwp_sidecart_after_header');
         ?>
 
-        <div class="woo-side-cart-content">
+        <div class="quantwp-sidecart-content">
             <?php if ($cart_has_items) : ?>
                 <?php foreach ($cart_items as $cart_item_key => $cart_item) : ?>
                     <?php
@@ -122,12 +122,12 @@ class Woo_Side_Cart_Main
                         continue;
                     }
                     ?>
-                    <div class="woo-side-cart-item">
-                        <div class="woo-side-cart-item-image">
+                    <div class="quantwp-sidecart-item">
+                        <div class="quantwp-sidecart-item-image">
                             <?php echo wp_kses_post($_product->get_image('thumbnail')); ?>
                         </div>
 
-                        <div class="woo-side-cart-item-details">
+                        <div class="quantwp-sidecart-item-details">
                             <a href="<?php echo esc_url($_product->get_permalink()); ?>" class="product-name">
                                 <?php
                                 // If it's a variation, show just the parent name (e.g. "T-Shirt")
@@ -139,7 +139,7 @@ class Woo_Side_Cart_Main
                                 echo wc_get_formatted_variation($cart_item['variation'], false);
                             } ?>
 
-                            <div class="woo-side-cart-item-details-inner">
+                            <div class="quantwp-sidecart-item-details-inner">
                                 <div class="quantity-controls" data-cart-key="<?php echo esc_attr($cart_item_key); ?>">
                                     <button class="qty-btn minus" data-qty-change="-1">-</button>
                                     <input type="number" class="qty-input" value="<?php echo esc_attr($cart_item['quantity']); ?>" readonly>
@@ -157,7 +157,7 @@ class Woo_Side_Cart_Main
                             </div>
                         </div>
 
-                        <div class="woo-side-cart-item-price">
+                        <div class="quantwp-sidecart-item-price">
                             <?php
                             // 1. Check if the product is on sale
                             if ($_product->is_on_sale()) {
@@ -184,26 +184,26 @@ class Woo_Side_Cart_Main
                 <?php endforeach; ?>
             <?php else : ?>
                 <p class="empty-cart-message">
-                    <?php esc_html_e('Your cart is empty', 'cart-booster-for-woocommerce'); ?>
+                    <?php esc_html_e('Your cart is empty', 'quantwp-sidecart-for-woocommerce'); ?>
                 </p>
             <?php endif; ?>
             <?php
             // Cross Sells will be added here by Cross_Sells class
-            do_action('woo_side_cart_after_cart_items');
+            do_action('quantwp_sidecart_after_cart_items');
             ?>
         </div>
 
 
 
-        <footer class="woo-side-cart-footer">
+        <footer class="quantwp-sidecart-footer">
             <?php if ($cart_has_items) : ?>
                 <div class="cart-subtotal">
-                    <span><?php esc_html_e('Subtotal:', 'cart-booster-for-woocommerce'); ?></span>
+                    <span><?php esc_html_e('Subtotal:', 'quantwp-sidecart-for-woocommerce'); ?></span>
                     <span><?php echo wp_kses_post(wc_price($cart->get_subtotal())); ?></span>
                 </div>
 
                 <a href="<?php echo esc_url(wc_get_checkout_url()); ?>" class="checkout-button">
-                    <?php esc_html_e('Checkout', 'cart-booster-for-woocommerce'); ?>
+                    <?php esc_html_e('Checkout', 'quantwp-sidecart-for-woocommerce'); ?>
                 </a>
             <?php endif; ?>
         </footer>
@@ -212,15 +212,15 @@ class Woo_Side_Cart_Main
         return ob_get_clean();
     }
 
-    public function cart_fragment($fragments)
+    public function quantwp_cart_fragment($fragments)
     {
         ob_start();
     ?>
-        <div class="woo-side-cart-wrapper">
+        <div class="quantwp-sidecart-wrapper">
             <?php echo $this->get_cart_content_html(); ?>
         </div>
     <?php
-        $fragments['.woo-side-cart-wrapper'] = ob_get_clean();
+        $fragments['.quantwp-sidecart-wrapper'] = ob_get_clean();
 
         // 2. Update the Cart Count Badge (ALWAYS SHOW)
         $count = WC()->cart->get_cart_contents_count();
@@ -230,9 +230,9 @@ class Woo_Side_Cart_Main
     }
 
 
-    public function ajax_update_cart()
+    public function quantwp_ajax_update_cart()
     {
-        check_ajax_referer('woo_side_cart_nonce', 'nonce');
+        check_ajax_referer('quantwp_sidecart_nonce', 'nonce');
 
         if (!isset($_POST['cart_key']) || !isset($_POST['new_qty'])) {
             wp_send_json_error(array('message' => 'Missing data'));
@@ -255,11 +255,11 @@ class Woo_Side_Cart_Main
         // Cart content fragment
         ob_start();
     ?>
-        <div class="woo-side-cart-wrapper">
+        <div class="quantwp-sidecart-wrapper">
             <?php echo $this->get_cart_content_html(); ?>
         </div>
     <?php
-        $fragments['.woo-side-cart-wrapper'] = ob_get_clean();
+        $fragments['.quantwp-sidecart-wrapper'] = ob_get_clean();
 
         //  Update Cart Count Badge fragment 
         $count = WC()->cart->get_cart_contents_count();
@@ -267,17 +267,17 @@ class Woo_Side_Cart_Main
 
         // Trigger other classes to add their fragments
         // Shipping bar
-        $shipping_bar = Woo_Side_Cart_Shipping_Bar::get_instance();
+        $shipping_bar = QuantWP_SideCart_Shipping_Bar::get_instance();
         ob_start();
         $shipping_bar->render_shipping_bar_content();
-        $fragments['.woo-shipping-bar-wrapper'] = ob_get_clean();
+        $fragments['.quantwp-shipping-bar-wrapper'] = ob_get_clean();
 
         // Cross-sells
-        $cross_sells = Woo_Side_Cart_Cross_Sells::get_instance();
-        $fragments['.woo-cross-sells-wrapper'] = $cross_sells->render_cross_sells();
+        $cross_sells = QuantWP_SideCart_Cross_Sells::get_instance();
+        $fragments['.quantwp-cross-sells-wrapper'] = $cross_sells->render_cross_sells();
 
         // Allow other plugins to add their own fragments
-        $fragments = apply_filters('cart_booster_fragments', $fragments);
+        $fragments = apply_filters('quantwp_sidecart_fragments', $fragments);
 
         wp_send_json_success(array(
             'fragments' => $fragments,
@@ -287,14 +287,14 @@ class Woo_Side_Cart_Main
     }
 
     /**
-     * Shortcode for cart icon: [cart_booster_icon]
+     * Shortcode for cart icon: [quantwp_cart_shortcode]
      */
-    public function cart_icon_shortcode()
+    public function quantwp_icon_shortcode()
     {
 
         $cart_count = WC()->cart->get_cart_contents_count();
-        $icon_key = get_option('woo_side_cart_icon', 'cart-classic');
-        $icons = Woo_Side_Cart_Settings::get_cart_icons();
+        $icon_key = get_option('quantwp_sidecart_icon', 'cart-classic');
+        $icons = QuantWP_SideCart_Settings::get_cart_icons();
         $svg = isset($icons[$icon_key]) ? $icons[$icon_key] : $icons['cart-classic'];
 
         $allowed_svg = array(
@@ -306,7 +306,7 @@ class Woo_Side_Cart_Main
 
         ob_start();
     ?>
-        <a href="#" class="woo-side-cart-trigger" aria-label="<?php esc_attr_e('View Cart', 'cart-booster-for-woocommerce'); ?>">
+        <a href="#" class="quantwp-sidecart-trigger" aria-label="<?php esc_attr_e('View Cart', 'quantwp-sidecart-for-woocommerce'); ?>">
             <?php echo wp_kses($svg, $allowed_svg); ?>
             <?php if ($cart_count > 0) : ?>
                 <span class="cart-count-badge"><?php echo esc_html($cart_count); ?></span>

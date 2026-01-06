@@ -80,7 +80,7 @@ jQuery(document).ready(function($) {
         
         // Add to cart
         $.ajax({
-            url: wooSideCart.ajaxUrl,
+            url: quantwpData.ajaxUrl,
             type: 'POST',
             data: {
                 action: 'woocommerce_add_to_cart',
@@ -97,7 +97,7 @@ jQuery(document).ready(function($) {
                     
                     // Get fresh fragments
                     $.ajax({
-                        url: wooSideCart.ajaxUrl,
+                        url: quantwpData.ajaxUrl,
                         type: 'POST',
                         data: {
                             action: 'woocommerce_get_refreshed_fragments'

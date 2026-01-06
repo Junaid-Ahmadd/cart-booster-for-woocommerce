@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class Woo_Side_Cart_Cross_Sells
+class QuantWP_SideCart_Cross_Sells
 {
 
     protected static $instance = null;
@@ -33,7 +33,7 @@ class Woo_Side_Cart_Cross_Sells
         add_action('wp_enqueue_scripts', array($this, 'enqueue_assets'));
 
         // Add cross-sells to side cart (after shipping bar)
-        add_action('woo_side_cart_after_cart_items', array($this, 'render_empty_wrapper'), 20);
+        add_action('quantwp_sidecart_after_cart_items', array($this, 'render_empty_wrapper'), 20);
 
         // Add cross-sells to fragments
         add_filter('woocommerce_add_to_cart_fragments', array($this, 'cross_sells_fragment'));
@@ -42,17 +42,17 @@ class Woo_Side_Cart_Cross_Sells
     public function enqueue_assets()
     {
         wp_enqueue_style(
-            'woo-side-cart',
-            CART_BOOSTER_URL . 'assets/css/side-cart.css',
+            'quantwp-sidecart',
+            QUANTWP_URL . 'assets/css/side-cart.css',
             array(),
-            CART_BOOSTER_VERSION
+            QUANTWP_VERSION
         );
 
         wp_enqueue_script(
-            'woo-cross-sells',
-            CART_BOOSTER_URL . 'assets/js/cross-sells.js',
-            array('jquery', 'woo-side-cart'),
-            CART_BOOSTER_VERSION,
+            'quantwp-cross-sells',
+            QUANTWP_URL . 'assets/js/cross-sells.js',
+            array('jquery', 'quantwp-sidecart'),
+            QUANTWP_VERSION,
             true
         );
     }
@@ -98,7 +98,7 @@ class Woo_Side_Cart_Cross_Sells
         $cross_sell_ids = array_diff($cross_sell_ids, $cart_product_ids);
 
         // Get limit from settings
-        $limit = absint(get_option('woo_side_cart_cross_sells_limit', 6));
+        $limit = absint(get_option('quantwp_sidecart_cross_sells_limit', 6));
         $cross_sell_ids = array_slice($cross_sell_ids, 0, $limit);
 
         return $cross_sell_ids;
@@ -137,7 +137,7 @@ class Woo_Side_Cart_Cross_Sells
     public function render_empty_wrapper()
     {
         // Check if cross-sells enabled
-        if (!get_option('woo_side_cart_cross_sells_enabled', 1)) {
+        if (!get_option('quantwp_sidecart_cross_sells_enabled', 1)) {
             return;
         }
 
@@ -148,7 +148,7 @@ class Woo_Side_Cart_Cross_Sells
             return;
         }
 
-        echo '<div class="woo-cross-sells-wrapper"></div>';
+        echo '<div class="quantwp-cross-sells-wrapper"></div>';
     }
 
     /**
@@ -157,7 +157,7 @@ class Woo_Side_Cart_Cross_Sells
     public function render_cross_sells()
     {
         // Check if cross-sells enabled
-        if (!get_option('woo_side_cart_cross_sells_enabled', 1)) {
+        if (!get_option('quantwp_sidecart_cross_sells_enabled', 1)) {
             return;
         }
 
@@ -169,9 +169,9 @@ class Woo_Side_Cart_Cross_Sells
 
         ob_start();
 ?>
-        <div class="woo-cross-sells-wrapper">
+        <div class="quantwp-cross-sells-wrapper">
             <div class="cross-sells-header">
-                <h4><?php esc_html_e('You may also like', 'cart-booster-for-woocommerce'); ?></h4>
+                <h4><?php esc_html_e('You may also like', 'quantwp-sidecart-for-woocommerce'); ?></h4>
 
             </div>
 
@@ -198,7 +198,7 @@ class Woo_Side_Cart_Cross_Sells
                                 <a href="<?php echo esc_url('?add-to-cart=' . $product->get_id()); ?>"
                                     class="add-to-cart-btn"
                                     data-product-id="<?php echo esc_attr($product->get_id()); ?>">
-                                    <?php esc_html_e('ADD', 'cart-booster-for-woocommerce'); ?>
+                                    <?php esc_html_e('ADD', 'quantwp-sidecart-for-woocommerce'); ?>
                                 </a>
                             </div>
                         </div>
@@ -217,7 +217,7 @@ class Woo_Side_Cart_Cross_Sells
      */
     public function cross_sells_fragment($fragments)
     {
-        $fragments['.woo-cross-sells-wrapper'] = $this->render_cross_sells();
+        $fragments['.quantwp-cross-sells-wrapper'] = $this->render_cross_sells();
         return $fragments;
     }
 }

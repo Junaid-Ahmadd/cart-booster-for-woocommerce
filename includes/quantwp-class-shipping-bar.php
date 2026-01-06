@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class Woo_Side_Cart_Shipping_Bar
+class QuantWP_SideCart_Shipping_Bar
 {
     protected static $instance = null;
 
@@ -32,7 +32,7 @@ class Woo_Side_Cart_Shipping_Bar
         add_action('wp_enqueue_scripts', array($this, 'enqueue_assets'));
 
         // Add shipping bar to side cart
-        add_action('woo_side_cart_after_header', array($this, 'render_empty_wrapper'));
+        add_action('quantwp_sidecart_after_header', array($this, 'render_empty_wrapper'));
 
         // Add shipping bar data to fragments
         add_filter('woocommerce_add_to_cart_fragments', array($this, 'shipping_bar_fragment'));
@@ -41,16 +41,16 @@ class Woo_Side_Cart_Shipping_Bar
     public function enqueue_assets()
     {
         wp_enqueue_style(
-            'woo-side-cart',
-            CART_BOOSTER_URL . 'assets/css/side-cart.css',
+            'quantwp-sidecart',
+            QUANTWP_URL . 'assets/css/side-cart.css',
             array(),
-            CART_BOOSTER_VERSION
+            QUANTWP_VERSION
         );
     }
 
     public function get_threshold()
     {
-        return floatval(get_option('woo_side_cart_shipping_threshold', 50));
+        return floatval(get_option('quantwp_sidecart_shipping_threshold', 50));
     }
 
     public function get_cart_total()
@@ -89,7 +89,7 @@ class Woo_Side_Cart_Shipping_Bar
         $cart = WC()->cart;
 
         // Check if shipping bar is enabled
-        if (!get_option('woo_side_cart_shipping_bar_enabled', 1)) {
+        if (!get_option('quantwp_sidecart_shipping_bar_enabled', 1)) {
             return;
         }
 
@@ -98,7 +98,7 @@ class Woo_Side_Cart_Shipping_Bar
             return;
         }
 
-        echo '<div class="woo-shipping-bar-wrapper"></div>';
+        echo '<div class="quantwp-shipping-bar-wrapper"></div>';
     }
 
 
@@ -107,7 +107,7 @@ class Woo_Side_Cart_Shipping_Bar
         $cart = WC()->cart;
 
         // Check if enabled
-        if (!get_option('woo_side_cart_shipping_bar_enabled', 1)) {
+        if (!get_option('quantwp_sidecart_shipping_bar_enabled', 1)) {
             return '';
         }
 
@@ -119,15 +119,15 @@ class Woo_Side_Cart_Shipping_Bar
         $progress = $this->calculate_progress();
 
 ?>
-        <div class="woo-shipping-bar-wrapper">
-            <div class="woo-shipping-bar-message">
+        <div class="quantwp-shipping-bar-wrapper">
+            <div class="quantwp-shipping-bar-message">
                 <?php if ($progress['qualified']) : ?>
                     <span class="success-message">
                         <?php
                         printf(
                             /* translators: %s: The text 'Free Shipping' in bold */
-                            esc_html__('🎉 You qualify for %s', 'cart-booster-for-woocommerce'),
-                            '<strong>' . esc_html__('Free Shipping', 'cart-booster-for-woocommerce') . '</strong>'
+                            esc_html__('🎉 You qualify for %s', 'quantwp-sidecart-for-woocommerce'),
+                            '<strong>' . esc_html__('Free Shipping', 'quantwp-sidecart-for-woocommerce') . '</strong>'
                         );
                         ?>
                     </span>
@@ -136,7 +136,7 @@ class Woo_Side_Cart_Shipping_Bar
                         <?php
                         printf(
                             /* translators: %1$s: Remaining amount, %2$s: Opening strong tag, %3$s: Closing strong tag */
-                            esc_html__('Add %1$s more to get %2$sFREE Shipping%3$s', 'cart-booster-for-woocommerce'),
+                            esc_html__('Add %1$s more to get %2$sFREE Shipping%3$s', 'quantwp-sidecart-for-woocommerce'),
                             '<strong>' . wp_kses_post(wc_price($progress['remaining'])) . '</strong>', // %1$s
                             '<strong>', // %2$s
                             '</strong>' // %3$s
@@ -146,7 +146,7 @@ class Woo_Side_Cart_Shipping_Bar
                 <?php endif; ?>
             </div>
 
-            <div class="woo-shipping-bar-progress">
+            <div class="quantwp-shipping-bar-progress">
                 <div class="progress-bar-bg">
                     <div class="progress-bar-fill" style="width: <?php echo esc_attr($progress['percentage']); ?>%;">
                     </div>
@@ -160,7 +160,7 @@ class Woo_Side_Cart_Shipping_Bar
     {
         ob_start();
         $this->render_shipping_bar_content();
-        $fragments['.woo-shipping-bar-wrapper'] = ob_get_clean();
+        $fragments['.quantwp-shipping-bar-wrapper'] = ob_get_clean();
 
         return $fragments;
     }

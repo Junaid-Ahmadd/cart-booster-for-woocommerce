@@ -3,18 +3,18 @@ jQuery(document).ready(function ($) {
   let isUpdating = false;
 
   // Open/close cart
-  $(".woo-side-cart-trigger").click(function (e) {
+  $(".quantwp-sidecart-trigger").click(function (e) {
     e.preventDefault();
-    $("body").toggleClass("woo-side-cart-open");
+    $("body").toggleClass("quantwp-sidecart-open");
   });
 
   // Use .on() for Event Delegation
   $(document).on(
     "click",
-    ".woo-close-button, .woo-side-cart-overlay",
+    ".quantwp-close-button, .quantwp-sidecart-overlay",
     function (e) {
       e.preventDefault();
-      $("body").removeClass("woo-side-cart-open");
+      $("body").removeClass("quantwp-sidecart-open");
     }
   );
 
@@ -23,15 +23,15 @@ jQuery(document).ready(function ($) {
     refreshCart();
 
     // Auto-open if enabled in settings
-    if (wooSideCart.autoOpen) {
-      $("body").addClass("woo-side-cart-open");
+    if (quantwpData.autoOpen) {
+      $("body").addClass("quantwp-sidecart-open");
     }
   });
 
   // Refresh cart fragments
   function refreshCart() {
     $.ajax({
-      url: wooSideCart.ajaxUrl,
+      url: quantwpData.ajaxUrl,
       type: "POST",
       data: {
         action: "woocommerce_get_refreshed_fragments",
@@ -58,7 +58,7 @@ jQuery(document).ready(function ($) {
     }
   );
 
-  // Update quantity
+  // Update quantity 
   $(document).on("click", ".qty-btn", function (e) {
     e.preventDefault();
 
@@ -83,10 +83,10 @@ jQuery(document).ready(function ($) {
 
     $.ajax({
       type: "POST",
-      url: wooSideCart.ajaxUrl,
+      url: quantwpData.ajaxUrl,
       data: {
-        action: "woo_side_cart_update",
-        nonce: wooSideCart.nonce,
+        action: "quantwp_update",
+        nonce: quantwpData.nonce,
         cart_key: cartKey,
         new_qty: newQty,
       },
@@ -121,10 +121,10 @@ jQuery(document).ready(function ($) {
 
     $.ajax({
       type: "POST",
-      url: wooSideCart.ajaxUrl,
+      url: quantwpData.ajaxUrl,
       data: {
-        action: "woo_side_cart_update",
-        nonce: wooSideCart.nonce,
+        action: "quantwp_update",
+        nonce: quantwpData.nonce,
         cart_key: cartKey,
         new_qty: 0,
       },
