@@ -1,0 +1,651 @@
+/**
+ * Woo Side Cart - Complete Styles
+ * Version: 1.0.0
+ * 
+ * A lightweight, conflict-free side cart for WooCommerce
+ * Total size: ~12KB (minified: ~8KB)
+ * 
+ * Features included:
+ * - Slide-out cart drawer
+ * - AJAX quantity controls
+ * - Free shipping progress bar
+ * - Cross-sell product carousel
+ * 
+ * Customization: Use CSS variables in :root or target specific classes
+ * Documentation: See README.md for customization guide
+ */
+
+/* ============================================
+   CSS CUSTOM PROPERTIES (Easy Customization)
+   ============================================ */
+:root {
+    /* Trigger Button */
+    --wsc-trigger-bg: #ffffff;
+    --wsc-trigger-color: #333333;
+    --wsc-trigger-size: 60px;
+    --wsc-trigger-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    
+    /* Drawer */
+    --wsc-drawer-bg: #ffffff;
+    --wsc-drawer-width-mobile: 100%;
+    --wsc-drawer-width-tablet: 40%;
+    --wsc-drawer-width-desktop: 31%;
+    
+    /* Colors */
+    --wsc-primary-color: #000000;
+    --wsc-border-color: #e7e7e7;
+    --wsc-text-color: #333333;
+    --wsc-button-bg: #000000;
+    --wsc-button-color: #ffffff;
+    --wsc-button-hover-bg: #333333;
+    
+    /* Shipping Bar */
+    --wsc-shipping-bg: #f8f8f8;
+    --wsc-shipping-success: #28a745;
+    --wsc-shipping-highlight: black;
+    --wsc-shipping-bar-fill: #28a745;
+    
+    /* Cross-Sells */
+    --wsc-cross-sells-price-sale: black;
+}
+
+/* ============================================
+   BASE RESETS
+   ============================================ */
+.quantwp-sidecart-drawer *,
+.quantwp-sidecart-trigger * {
+    box-sizing: border-box;
+}
+
+.quantwp-sidecart-drawer a,
+.quantwp-sidecart-drawer button,
+.quantwp-sidecart-drawer input {
+    font-family: inherit;
+    line-height: normal;
+    letter-spacing: normal;
+    text-transform: none;
+}
+
+/* ============================================
+   FLOATING TRIGGER BUTTON
+   ============================================ */
+.quantwp-sidecart-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+}
+
+.quantwp-sidecart-trigger svg {
+    width: 28px;
+    height: 28px;
+    display: block;
+}
+
+.quantwp-sidecart-trigger .cart-count-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #e74c3c;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.quantwp-sidecart-trigger-inline,
+.quantwp-sidecart-trigger {
+    transition: opacity 0.2s ease;
+}
+
+/* ============================================
+   OVERLAY
+   ============================================ */
+.quantwp-sidecart-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 9999 !important;
+    cursor: pointer;
+}
+
+body.quantwp-sidecart-open .quantwp-sidecart-overlay {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* ============================================
+   DRAWER
+   ============================================ */
+.quantwp-sidecart-drawer {
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    width: var(--wsc-drawer-width-mobile);
+    height: 100vh !important;
+    background-color: var(--wsc-drawer-bg);
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+    z-index: 10000 !important;
+    overflow: hidden;
+}
+
+body.quantwp-sidecart-open .quantwp-sidecart-drawer {
+    transform: translateX(0);
+}
+
+body.quantwp-sidecart-open {
+    overflow: hidden !important;
+}
+
+.quantwp-sidecart-drawer .quantwp-sidecart-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+.quantwp-sidecart-drawer .quantwp-sidecart-header {
+    padding: 26px 20px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.quantwp-sidecart-drawer .quantwp-sidecart-header .quantwp-sidecart-title {
+    margin: 0;
+    padding: 0;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--wsc-text-color);
+}
+
+.quantwp-sidecart-drawer .quantwp-sidecart-header .quantwp-close-button {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font-size: 32px;
+    line-height: 1;
+    color: var(--wsc-text-color);
+    cursor: pointer;
+    width: auto;
+    height: auto;
+    display: flex;
+    transition: color 0.2s ease;
+}
+
+.quantwp-sidecart-drawer .quantwp-close-button:hover {
+    color: #000000;
+}
+
+/* ============================================
+   SHIPPING PROGRESS BAR
+   ============================================ */
+.quantwp-sidecart-drawer .quantwp-shipping-bar-wrapper {
+    padding: 0 20px;
+    margin: 0;
+}
+
+.quantwp-sidecart-drawer .quantwp-shipping-bar-message {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    text-align: center;
+}
+
+.quantwp-sidecart-drawer .quantwp-shipping-bar-message .success-message {
+    color: black;
+    font-weight: 600;
+}
+
+.quantwp-sidecart-drawer .quantwp-shipping-bar-message .success-message strong {
+    color: #82a8d3;
+    font-weight: bold;
+}
+
+.quantwp-sidecart-drawer .quantwp-shipping-bar-message .progress-message {
+    color: var(--wsc-text-color);
+}
+
+.quantwp-sidecart-drawer .progress-message strong {
+    color: var(--wsc-shipping-highlight);
+    font-weight: 700;
+}
+
+.quantwp-sidecart-drawer .quantwp-shipping-bar-progress {
+    margin: 10px 0 0 0;
+}
+
+.quantwp-sidecart-drawer .progress-bar-bg {
+    width: 100%;
+    height: 15px;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.quantwp-sidecart-drawer .progress-bar-fill {
+    height: 100%;
+    background: #1bae4b;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8px;
+}
+
+
+
+
+
+/* ============================================
+   CART CONTENT
+   ============================================ */
+.quantwp-sidecart-drawer .quantwp-sidecart-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.quantwp-sidecart-drawer .empty-cart-message {
+    text-align: center;
+    color: #999999;
+    padding: 40px 20px;
+    margin: 0;
+}
+
+/* ============================================
+   CART ITEMS
+   ============================================ */
+.quantwp-sidecart-drawer .quantwp-sidecart-item {
+    display: flex;
+    gap: 12px;
+    padding-bottom: 16px;
+}
+
+.quantwp-sidecart-drawer .quantwp-sidecart-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.quantwp-sidecart-drawer .quantwp-sidecart-item-image {
+    width: 80px;
+    flex-shrink: 0;
+}
+
+.quantwp-sidecart-drawer .quantwp-sidecart-item-image img {
+    width: 100%;
+    border-radius: 4px;
+}
+
+.quantwp-sidecart-drawer .quantwp-sidecart-item-details {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.quantwp-sidecart-drawer .product-name {
+    color: var(--wsc-text-color);
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    margin: 0;
+    width: fit-content;
+}
+
+.quantwp-sidecart-drawer .product-name:hover {
+    color: #000000;
+    text-decoration: underline;
+}
+
+.quantwp-sidecart-drawer .quantwp-sidecart-item-details-inner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Variation Names */
+.quantwp-sidecart-drawer .variation {
+  display: flex;
+}
+
+.quantwp-sidecart-drawer .variation > dt {
+  display: none;
+}
+
+.quantwp-sidecart-drawer .variation > dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.quantwp-sidecart-item-details dl.variation dd::after {
+    content: ",";
+    white-space: pre; 
+}
+
+
+.quantwp-sidecart-item-details dl.variation dd:last-child::after {
+    content: "";
+}
+
+/* Quantity Controls */
+.quantwp-sidecart-drawer .quantity-controls {
+    display: flex;
+    border: 1px solid var(--wsc-border-color);
+    border-radius: 4px;
+    overflow: hidden;
+    height: 25px;
+    width: 80px;
+}
+
+.quantwp-sidecart-drawer .qty-btn {
+    width: 32px;
+    height: auto;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--wsc-text-color);
+    font-size: 18px;
+    transition: background-color 0.2s ease;
+    min-width: auto;
+    box-shadow: none;
+}
+
+.quantwp-sidecart-drawer .qty-btn:hover {
+    background-color: #f5f5f5;
+    color: #000000;
+}
+
+.quantwp-sidecart-drawer .qty-input {
+    width: 50px;
+    height: auto;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-size: 14px;
+    padding: 0;
+    margin: 0;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.quantwp-sidecart-drawer .qty-input::-webkit-outer-spin-button,
+.quantwp-sidecart-drawer .qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Remove Button */
+.quantwp-sidecart-drawer .remove-item {
+    background: none;
+    border: none;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    color: #999999;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.quantwp-sidecart-drawer .remove-item:hover {
+    color: #e74c3c;
+}
+
+.quantwp-sidecart-drawer .remove-item svg {
+    width: 100%;
+    height: 100%;
+}
+
+.quantwp-sidecart-drawer .quantwp-sidecart-item-price {
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: right;
+    margin-left: auto;
+}
+
+.quantwp-sidecart-drawer .quantwp-sidecart-item-price .original-price {
+  color: #999;
+}
+
+/* ============================================
+   CROSS-SELLS CAROUSEL
+   ============================================ */
+.quantwp-sidecart-drawer .quantwp-cross-sells-wrapper {
+    padding: 0;
+    background-color: #ffffff;
+    position: relative;
+}
+
+.quantwp-sidecart-drawer .cross-sells-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 0 15px 0;
+}
+
+.quantwp-sidecart-drawer .cross-sells-header h4 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+
+.quantwp-sidecart-drawer .carousel-prev,
+.quantwp-sidecart-drawer .carousel-next {
+    width: auto;
+    height: auto;
+    color: black;
+    border: none;
+    background: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 50px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    position: absolute;
+    top: 50%;
+    bottom: 50%;
+    z-index: 999;
+}
+
+.quantwp-sidecart-drawer .carousel-prev {
+    left: 10px;
+}
+
+.quantwp-sidecart-drawer .carousel-next {
+    right: 10px;
+}
+
+.quantwp-sidecart-drawer .carousel-prev:hover,
+.quantwp-sidecart-drawer .carousel-next:hover {
+    background: none;
+    color: black;
+}
+
+.quantwp-sidecart-drawer .carousel-prev:disabled,
+.quantwp-sidecart-drawer .carousel-next:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.quantwp-sidecart-drawer .cross-sells-carousel {
+    overflow: hidden;
+}
+
+.quantwp-sidecart-drawer .carousel-track {
+    display: flex;
+    transition: transform 0.4s ease;
+}
+
+.quantwp-sidecart-drawer .cross-sell-item {
+    width: 100%;
+    flex-shrink: 0;
+    border: 1px solid var(--wsc-border-color);
+    border-radius: 8px;
+    padding: 16px;
+    margin-right: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    height: 160px;
+    background-color: #e0f1ff;
+}
+
+.quantwp-sidecart-drawer .cross-sell-item .product-image {
+    width: 25%;
+    flex-shrink: 0;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+}
+
+.quantwp-sidecart-drawer .cross-sell-item .product-image img {
+    width: 90px;
+    transition: transform 0.3s ease;
+}
+
+.quantwp-sidecart-drawer .cross-sell-item:hover .product-image img {
+    transform: scale(1.05);
+}
+
+.quantwp-sidecart-drawer .cross-sell-item .product-details {
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.quantwp-sidecart-drawer .cross-sell-item .product-price {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.quantwp-sidecart-drawer .product-price del {
+    color: #999999;
+    font-size: 14px;
+    margin-right: 5px;
+}
+
+.quantwp-sidecart-drawer .product-price ins {
+    text-decoration: none;
+    color: var(--wsc-cross-sells-price-sale);
+}
+
+.quantwp-sidecart-drawer .add-to-cart-btn {
+    width: 60%;
+    padding: 10px 16px;
+    background: white;
+    color: #F7540E;
+    text-align: center;
+    border-radius: 50px;
+    border: 1px solid #F7540E;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    transition: background 0.3s ease;
+}
+
+
+
+
+/* ============================================
+   FOOTER
+   ============================================ */
+.quantwp-sidecart-drawer .quantwp-sidecart-footer {
+    padding: 20px 20px;
+    flex-shrink: 0;
+    border-top: 1px solid var(--wsc-border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.quantwp-sidecart-drawer .cart-subtotal {
+    display: flex;
+    justify-content: space-between;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.quantwp-sidecart-drawer .checkout-button {
+    display: block;
+    width: 100%;
+    background: #F87C56;
+    color: var(--wsc-button-color);
+    text-align: center;
+    padding: 14px 20px;
+    border-radius: 100px;
+    border: 2px solid #F87C56;
+    text-decoration: none;
+    font-size: 22px;
+    font-weight: 600;
+    transition: background 0.2s ease;
+}
+
+.quantwp-sidecart-drawer .checkout-button:hover {
+    background: white;
+    color: black;
+}
+
+
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (min-width: 768px) {
+    .quantwp-sidecart-drawer {
+        width: var(--wsc-drawer-width-tablet);
+        max-width: 500px;
+    }
+    
+    .quantwp-sidecart-drawer .quantwp-sidecart-item-image {
+        width: 100px;
+    }
+
+}
+
+@media (min-width: 1024px) {
+    .quantwp-sidecart-drawer {
+        width: var(--wsc-drawer-width-desktop);
+        max-width: 500px;
+    }
+
+}
