@@ -69,6 +69,34 @@ class QuantWP_SideCart_Main
             'nonce' => wp_create_nonce('quantwp_sidecart_nonce'),
             'autoOpen' => (bool) get_option('quantwp_sidecart_auto_open', 1),
         ));
+
+        // 1. Get sanitize colors from database
+            $threshold_color = sanitize_hex_color(
+            get_option('quantwp_sidecart_carousel_background_color', '#92C1E9')
+        );
+        $carousel_bg = sanitize_hex_color(
+            get_option('quantwp_sidecart_carousel_background_color', '#E0F1FF')
+        );
+        $btn_bg = sanitize_hex_color(
+            get_option('quantwp_sidecart_checkout_btn_bg', '#F87C56')
+        );
+
+        // 2. Fallback to defaults if sanitization fails
+        $threshold_color = $threshold_color ?: '#92C1E9';
+        $carousel_bg = $carousel_bg ?: '#E0F1FF';
+        $btn_bg = $btn_bg ?: '#F87C56';
+
+        // 3. Create CSS with sanitized values
+        $custom_css = "
+        :root {
+        --quantwp-threshold-color: {$threshold_color};
+        --quantwp-carousel-bg: {$carousel_bg};
+        --quantwp-btn-bg: {$btn_bg};
+         }
+        ";
+
+        // 5. Inject into page
+        wp_add_inline_style('quantwp-sidecart', $custom_css);
     }
 
     public function quantwp_render_cart_html()
@@ -183,9 +211,14 @@ class QuantWP_SideCart_Main
                     </div>
                 <?php endforeach; ?>
             <?php else : ?>
-                <p class="empty-cart-message">
-                    <?php esc_html_e('Your cart is empty', 'quantwp-sidecart-for-woocommerce'); ?>
-                </p>
+                <div class="quantwp-empty-state">
+                    <p class="empty-cart-message">
+                        <?php esc_html_e('Your cart is empty', 'quantwp-sidecart-for-woocommerce'); ?>
+                    </p>
+                    <a href="<?php echo esc_url(wc_get_page_permalink('shop')); ?>" class="quantwp-shop-button">
+                        <?php esc_html_e('Checkout Our Best Sellers', 'quantwp-sidecart-for-woocommerce'); ?>
+                    </a>
+                </div>
             <?php endif; ?>
             <?php
             // Cross Sells will be added here by Cross_Sells class

@@ -5,4 +5,6 @@ jQuery(document).ready(function($){
         $('.side-cart-option').removeClass('selected'); 
         $(this).addClass('selected'); 
     });
+
+    $('.quantwp-color-picker').wpColorPicker();
 });

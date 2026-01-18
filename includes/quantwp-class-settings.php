@@ -101,7 +101,6 @@ class QuantWP_SideCart_Settings
             )
         );
 
-
         // Shipping Bar Settings
         register_setting(
             $this->option_group,
@@ -144,6 +143,7 @@ class QuantWP_SideCart_Settings
             )
         );
 
+        // Cart Icon
         register_setting(
             $this->option_group,
             'quantwp_sidecart_icon',
@@ -152,6 +152,27 @@ class QuantWP_SideCart_Settings
                 'default' => 'cart-classic',
                 'sanitize_callback' => 'sanitize_key' // Secure text input
             )
+        );
+
+        // Shpping Threshold Color
+        register_setting(
+            $this->option_group,
+            'quantwp_sidecart_shipping_threshold_color',
+            array('default' => '#92C1E9', 'sanitize_callback' => 'sanitize_hex_color')
+        );
+
+        // Background Color Carsousel 
+        register_setting(
+            $this->option_group,
+            'quantwp_sidecart_carousel_background_color',
+            array('default' => '#E0F1FF', 'sanitize_callback' => 'sanitize_hex_color')
+        );
+
+        // Checkout Button Style
+        register_setting(
+            $this->option_group,
+            'quantwp_sidecart_checkout_btn_bg',
+            array('default' => '#F87C56', 'sanitize_callback' => 'sanitize_hex_color')
         );
     }
 
@@ -378,6 +399,37 @@ class QuantWP_SideCart_Settings
                         </td>
                     </tr>
                 </table>
+                <!-- Appearance Settings -->
+                <h2><?php esc_html_e('Appearance', 'quantwp-sidecart-for-woocommerce'); ?></h2>
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><?php esc_html_e('Shipping Threshold Color', 'quantwp-sidecart-for-woocommerce'); ?></th>
+                        <td>
+                            <input type="text" name="quantwp_sidecart_shipping_threshold_color"
+                                class="quantwp-color-picker"
+                                value="<?php echo esc_attr(get_option('quantwp_sidecart_shipping_threshold_color', '#92C1E9')); ?>">
+                            <p class="description"><?php esc_html_e('Shipping Threshold Color.', 'quantwp-sidecart-for-woocommerce'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><?php esc_html_e('Carousel Background Color', 'quantwp-sidecart-for-woocommerce'); ?></th>
+                        <td>
+                            <input type="text" name="quantwp_sidecart_carousel_background_color"
+                                class="quantwp-color-picker"
+                                value="<?php echo esc_attr(get_option('quantwp_sidecart_carousel_background_color', '#E0F1FF')); ?>">
+                            <p class="description"><?php esc_html_e('Carousel Background Color.', 'quantwp-sidecart-for-woocommerce'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><?php esc_html_e('Checkout Button', 'quantwp-sidecart-for-woocommerce'); ?></th>
+                        <td>
+                            <input type="text" name="quantwp_sidecart_checkout_btn_bg"
+                                class="quantwp-color-picker"
+                                value="<?php echo esc_attr(get_option('quantwp_sidecart_checkout_btn_bg', '#F87C56')); ?>">
+                            <p class="description"><?php esc_html_e('Checkout Button Color.', 'quantwp-sidecart-for-woocommerce'); ?></p>
+                        </td>
+                    </tr>
+                </table>
 
                 <?php submit_button(__('Save Settings', 'quantwp-sidecart-for-woocommerce')); ?>
             </form>
@@ -401,10 +453,13 @@ class QuantWP_SideCart_Settings
         wp_enqueue_script(
             'quantwp-sidecart-admin',
             QUANTWP_URL . 'assets/js/admin.js',
-            array('jquery'),
+            array('jquery', 'wp-color-picker'),
             QUANTWP_VERSION,
             true
         );
+
+        wp_enqueue_style('wp-color-picker');
+wp_enqueue_script('wp-color-picker');
 
         // Enqueue admin CSS
         wp_enqueue_style(

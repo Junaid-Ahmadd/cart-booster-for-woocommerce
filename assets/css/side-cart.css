@@ -165,7 +165,7 @@ body.quantwp-sidecart-open {
    HEADER
    ============================================ */
 .quantwp-sidecart-drawer .quantwp-sidecart-header {
-    padding: 26px 20px 25px;
+    padding: 15px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -185,9 +185,10 @@ body.quantwp-sidecart-open {
     border: none;
     padding: 0;
     margin: 0;
-    font-size: 32px;
+    font-size: 50px;
+    font-weight: 100;
     line-height: 1;
-    color: var(--wsc-text-color);
+    color: black;
     cursor: pointer;
     width: auto;
     height: auto;
@@ -195,9 +196,6 @@ body.quantwp-sidecart-open {
     transition: color 0.2s ease;
 }
 
-.quantwp-sidecart-drawer .quantwp-close-button:hover {
-    color: #000000;
-}
 
 /* ============================================
    SHIPPING PROGRESS BAR
@@ -219,8 +217,8 @@ body.quantwp-sidecart-open {
 }
 
 .quantwp-sidecart-drawer .quantwp-shipping-bar-message .success-message strong {
-    color: #82a8d3;
-    font-weight: bold;
+    color: var(--quantwp-threshold-color, #92C1E9);
+    font-weight: 800;
 }
 
 .quantwp-sidecart-drawer .quantwp-shipping-bar-message .progress-message {
@@ -246,7 +244,7 @@ body.quantwp-sidecart-open {
 
 .quantwp-sidecart-drawer .progress-bar-fill {
     height: 100%;
-    background: #1bae4b;
+    background: var(--quantwp-threshold-color, #92C1E9);
     border-radius: 10px;
     transition: width 0.5s ease;
     display: flex;
@@ -254,8 +252,6 @@ body.quantwp-sidecart-open {
     justify-content: flex-end;
     padding-right: 8px;
 }
-
-
 
 
 
@@ -271,11 +267,33 @@ body.quantwp-sidecart-open {
     gap: 16px;
 }
 
+.quantwp-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 40px;
+    gap: 50px;
+}
 .quantwp-sidecart-drawer .empty-cart-message {
     text-align: center;
-    color: #999999;
-    padding: 40px 20px;
+    color: black;
     margin: 0;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.quantwp-sidecart-drawer .quantwp-shop-button {
+    width: 100%;
+    padding: 15px 50px;
+    background-color: black;
+    color: white;
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 100px;
+    cursor: pointer;
 }
 
 /* ============================================
@@ -525,7 +543,7 @@ body.quantwp-sidecart-open {
     align-items: center;
     gap: 24px;
     height: 160px;
-    background-color: #e0f1ff;
+    background-color: var(--quantwp-carousel-bg, #E0F1FF);
 }
 
 .quantwp-sidecart-drawer .cross-sell-item .product-image {
@@ -559,7 +577,7 @@ body.quantwp-sidecart-open {
 }
 
 .quantwp-sidecart-drawer .product-price del {
-    color: #999999;
+    color: black;
     font-size: 14px;
     margin-right: 5px;
 }
@@ -573,16 +591,21 @@ body.quantwp-sidecart-open {
     width: 60%;
     padding: 10px 16px;
     background: white;
-    color: #F7540E;
+    color: var(--quantwp-btn-bg, #F87C56);
     text-align: center;
     border-radius: 50px;
-    border: 1px solid #F7540E;
+    border: 2px solid;
+    border-color: var(--quantwp-btn-bg, #F87C56);
     cursor: pointer;
     font-size: 14px;
     font-weight: 700;
     transition: background 0.3s ease;
 }
 
+.quantwp-sidecart-drawer .add-to-cart-btn:hover {
+    border: none;
+    color: black;
+}
 
 
 
@@ -608,12 +631,13 @@ body.quantwp-sidecart-open {
 .quantwp-sidecart-drawer .checkout-button {
     display: block;
     width: 100%;
-    background: #F87C56;
+    background: var(--quantwp-btn-bg, #F87C56);
     color: var(--wsc-button-color);
     text-align: center;
     padding: 14px 20px;
     border-radius: 100px;
-    border: 2px solid #F87C56;
+    border: 2px solid;
+    border-color: var(--quantwp-btn-bg, #F87C56);
     text-decoration: none;
     font-size: 22px;
     font-weight: 600;
