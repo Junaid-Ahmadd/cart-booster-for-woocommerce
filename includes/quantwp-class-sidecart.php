@@ -72,7 +72,7 @@ class QuantWP_SideCart_Main
 
         // 1. Get sanitize colors from database
             $threshold_color = sanitize_hex_color(
-            get_option('quantwp_sidecart_carousel_background_color', '#92C1E9')
+            get_option('quantwp_sidecart_shipping_threshold_color', '#92C1E9')
         );
         $carousel_bg = sanitize_hex_color(
             get_option('quantwp_sidecart_carousel_background_color', '#E0F1FF')
