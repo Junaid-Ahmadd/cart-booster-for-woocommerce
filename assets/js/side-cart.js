@@ -1,148 +1,167 @@
-jQuery(document).ready(function ($) {
-  // Track if an update is in progress
-  let isUpdating = false;
+/**
+ * Side Cart JavaScript - OPTIMIZED with Debouncing
+ */
 
-  // Open/close cart
-  $(".quantwp-sidecart-trigger").click(function (e) {
-    e.preventDefault();
-    $("body").toggleClass("quantwp-sidecart-open");
-  });
+(function ($) {
+  'use strict';
 
-  // Use .on() for Event Delegation
-  $(document).on(
-    "click",
-    ".quantwp-close-button, .quantwp-sidecart-overlay",
-    function (e) {
-      e.preventDefault();
-      $("body").removeClass("quantwp-sidecart-open");
-    }
-  );
+  // Debounce timer
+  let quantityUpdateTimer = null;
+  let pendingUpdates = {};
 
-  // Listen to WooCommerce events
-  $(document.body).on("added_to_cart", function () {
-    refreshCart();
+  const QuantWPSideCart = {
 
-    // Auto-open if enabled in settings
-    if (quantwpData.autoOpen) {
-      $("body").addClass("quantwp-sidecart-open");
-    }
-  });
+    init: function () {
+      this.bindEvents();
+    },
 
-  // Refresh cart fragments
-  function refreshCart() {
-    $.ajax({
-      url: quantwpData.ajaxUrl,
-      type: "POST",
-      data: {
-        action: "woocommerce_get_refreshed_fragments",
-      },
-      success: function (data) {
-        if (data && data.fragments) {
-          $.each(data.fragments, function (selector, html) {
-            $(selector).replaceWith(html);
-          });
-          $(document.body).trigger("wc_fragments_refreshed");
+    bindEvents: function () {
+      const self = this;
+
+      // Open/close cart
+      $(document).on('click', '.quantwp-sidecart-trigger', function (e) {
+        e.preventDefault();
+        self.openCart();
+      });
+
+      $(document).on('click', '.quantwp-close-button, .quantwp-sidecart-overlay', function (e) {
+        e.preventDefault();
+        self.closeCart();
+      });
+
+      // Quantity buttons - WITH DEBOUNCING
+      $(document).on('click', '.quantity-controls .qty-btn', function (e) {
+        e.preventDefault();
+        self.handleQuantityChange($(this));
+      });
+
+      // Remove item
+      $(document).on('click', '.remove-item', function (e) {
+        e.preventDefault();
+        self.removeItem($(this));
+      });
+
+      // Auto-open on add to cart
+      $(document.body).on('added_to_cart', function () {
+        if (quantwpData.autoOpen) {
+          self.openCart();
         }
-      },
-    });
-  }
+      });
+    },
 
-  // Refresh on page load
-  refreshCart();
+    /**
+     * Handle quantity change with DEBOUNCING to prevent CPU spikes
+     */
+    handleQuantityChange: function ($button) {
+      const $controls = $button.closest('.quantity-controls');
+      const $input = $controls.find('.qty-input');
+      const cartKey = $controls.data('cart-key');
+      const change = parseInt($button.data('qty-change'));
+      const currentQty = parseInt($input.val());
+      const newQty = Math.max(0, currentQty + change);
 
-  // Listen to WooCommerce events
-  $(document.body).on(
-    "added_to_cart updated_wc_div updated_cart_totals removed_from_cart",
-    function () {
-      refreshCart();
-    }
-  );
+      // Update UI immediately for better UX
+      $input.val(newQty);
 
-  // Update quantity 
-  $(document).on("click", ".qty-btn", function (e) {
-    e.preventDefault();
+      // Store pending update
+      pendingUpdates[cartKey] = newQty;
 
-    // Ignore if already updating
-    if (isUpdating) {
-      return;
-    }
+      // Clear existing timer
+      if (quantityUpdateTimer) {
+        clearTimeout(quantityUpdateTimer);
+      }
 
-    const $btn = $(this);
-    const $wrap = $btn.closest(".quantity-controls");
-    const $input = $wrap.find(".qty-input");
-    const cartKey = $wrap.data("cart-key");
-    const change = parseInt($btn.data("qty-change"));
-    let newQty = parseInt($input.val()) + change;
+      // Set new timer - only fires after 500ms of no activity
+      quantityUpdateTimer = setTimeout(() => {
+        this.processPendingUpdates();
+      }, 500);
 
-    if (newQty < 0) newQty = 0;
+      // Disable buttons during debounce
+      $controls.addClass('updating');
+    },
 
-    $input.val(newQty);
+    /**
+     * Process all pending quantity updates at once
+     */
+    processPendingUpdates: function () {
+      const updates = { ...pendingUpdates };
+      pendingUpdates = {};
 
-    // Set updating flag
-    isUpdating = true;
+      // Process each update
+      Object.keys(updates).forEach(cartKey => {
+        this.updateCart(cartKey, updates[cartKey]);
+      });
+    },
 
-    $.ajax({
-      type: "POST",
-      url: quantwpData.ajaxUrl,
-      data: {
-        action: "quantwp_update",
-        nonce: quantwpData.nonce,
-        cart_key: cartKey,
-        new_qty: newQty,
-      },
-      success: function (response) {
-        if (response.success && response.data.fragments) {
-          $.each(response.data.fragments, function (selector, html) {
-            $(selector).replaceWith(html);
-          });
-          $(document.body).trigger("wc_fragments_refreshed");
+    /**
+     * Update cart via AJAX
+     */
+    updateCart: function (cartKey, newQty) {
+      const self = this;
+
+      $.ajax({
+        url: quantwpData.ajaxUrl,
+        type: 'POST',
+        data: {
+          action: 'quantwp_update',
+          nonce: quantwpData.nonce,
+          cart_key: cartKey,
+          new_qty: newQty
+        },
+        beforeSend: function () {
+          $('.quantwp-sidecart-wrapper').addClass('loading');
+        },
+        success: function (response) {
+          if (response.success && response.data.fragments) {
+            self.updateFragments(response.data.fragments);
+
+            // Trigger WooCommerce event for other plugins
+            $(document.body).trigger('wc_fragment_refresh');
+          }
+        },
+        error: function () {
+          console.error('Failed to update cart');
+        },
+        complete: function () {
+          $('.quantwp-sidecart-wrapper').removeClass('loading');
+          $('.quantity-controls').removeClass('updating');
         }
-      },
-      error: function () {
-        alert("Failed to update cart");
-      },
-      complete: function () {
-        // Reset flag after cart content is updated
-        isUpdating = false;
-      },
-    });
+      });
+    },
+
+    /**
+     * Remove item from cart
+     */
+    removeItem: function ($button) {
+      const cartKey = $button.data('cart-key');
+      this.updateCart(cartKey, 0);
+    },
+
+    /**
+     * Update all fragments
+     */
+    updateFragments: function (fragments) {
+      $.each(fragments, function (key, value) {
+        $(key).replaceWith(value);
+      });
+    },
+
+    openCart: function () {
+      $('.quantwp-sidecart-drawer').addClass('open');
+      $('.quantwp-sidecart-overlay').addClass('active');
+      $('body').addClass('quantwp-cart-open');
+    },
+
+    closeCart: function () {
+      $('.quantwp-sidecart-drawer').removeClass('open');
+      $('.quantwp-sidecart-overlay').removeClass('active');
+      $('body').removeClass('quantwp-cart-open');
+    }
+  };
+
+  // Initialize on document ready
+  $(document).ready(function () {
+    QuantWPSideCart.init();
   });
 
-  // Remove item
-  $(document).on("click", ".remove-item", function (e) {
-    e.preventDefault();
-
-    // Ignore if already updating
-    if (isUpdating) {
-      return;
-    }
-
-    const cartKey = $(this).data("cart-key");
-
-    $.ajax({
-      type: "POST",
-      url: quantwpData.ajaxUrl,
-      data: {
-        action: "quantwp_update",
-        nonce: quantwpData.nonce,
-        cart_key: cartKey,
-        new_qty: 0,
-      },
-      success: function (response) {
-        if (response.success && response.data.fragments) {
-          $.each(response.data.fragments, function (selector, html) {
-            $(selector).replaceWith(html);
-          });
-          $(document.body).trigger("wc_fragments_refreshed");
-        }
-      },
-      error: function () {
-        alert("Failed to remove item");
-      },
-      complete: function () {
-        // Reset flag after cart content is updated
-        isUpdating = false;
-      },
-    });
-  });
-});
+})(jQuery);

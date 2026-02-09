@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Side Cart Main Class
+ * Side Cart Main Class - WITH FULL FRAGMENT CACHING
  */
 
 if (!defined('ABSPATH')) {
@@ -42,6 +42,49 @@ class QuantWP_SideCart_Main
 
         // Add shortcode for cart icon
         add_shortcode('quantwp_cart_shortcode', array($this, 'quantwp_icon_shortcode'));
+        
+        // Clear cache when cart changes
+        add_action('woocommerce_cart_item_removed', array($this, 'clear_cart_fragment_cache'));
+        add_action('woocommerce_add_to_cart', array($this, 'clear_cart_fragment_cache'));
+        add_action('woocommerce_cart_item_set_quantity', array($this, 'clear_cart_fragment_cache'));
+        
+        // Clear cache when settings change
+        add_action('update_option_quantwp_sidecart_auto_open', array($this, 'clear_all_fragment_caches'));
+        add_action('update_option_quantwp_sidecart_shipping_threshold', array($this, 'clear_all_fragment_caches'));
+        add_action('update_option_quantwp_sidecart_shipping_threshold_color', array($this, 'clear_all_fragment_caches'));
+        add_action('update_option_quantwp_sidecart_carousel_background_color', array($this, 'clear_all_fragment_caches'));
+        add_action('update_option_quantwp_sidecart_checkout_btn_bg', array($this, 'clear_all_fragment_caches'));
+    }
+
+    /**
+     * Clear fragment cache for current user's cart
+     */
+    public function clear_cart_fragment_cache()
+    {
+        if (!WC()->cart) {
+            return;
+        }
+        
+        $cart_hash = WC()->cart->get_cart_hash();
+        if ($cart_hash) {
+            delete_transient('quantwp_cart_fragment_' . $cart_hash);
+        }
+    }
+    
+    /**
+     * Clear ALL fragment caches (when settings change)
+     * This is more aggressive but necessary when UI colors/text change
+     */
+    public function clear_all_fragment_caches()
+    {
+        global $wpdb;
+        
+        // Delete all transients starting with 'quantwp_cart_fragment_'
+        $wpdb->query(
+            "DELETE FROM {$wpdb->options} 
+            WHERE option_name LIKE '_transient_quantwp_cart_fragment_%' 
+            OR option_name LIKE '_transient_timeout_quantwp_cart_fragment_%'"
+        );
     }
 
     public function enqueue_assets()
@@ -71,7 +114,7 @@ class QuantWP_SideCart_Main
         ));
 
         // 1. Get sanitize colors from database
-            $threshold_color = sanitize_hex_color(
+        $threshold_color = sanitize_hex_color(
             get_option('quantwp_sidecart_shipping_threshold_color', '#92C1E9')
         );
         $carousel_bg = sanitize_hex_color(
@@ -101,7 +144,6 @@ class QuantWP_SideCart_Main
 
     public function quantwp_render_cart_html()
     {
-
 ?>
 
         <div class="quantwp-sidecart-overlay"></div>
@@ -114,7 +156,72 @@ class QuantWP_SideCart_Main
     <?php
     }
 
+    /**
+     * Get cart content HTML - WITH CACHING
+     * 
+     * Cache key includes:
+     * - Cart hash (changes when cart items/quantities change)
+     * - Settings version (changes when plugin settings change)
+     */
     public function get_cart_content_html()
+    {
+        $cart = WC()->cart;
+        
+        // Build cache key from cart hash + settings version
+        $cart_hash = $cart->get_cart_hash();
+        $settings_version = $this->get_settings_version();
+        $cache_key = 'quantwp_cart_fragment_' . $cart_hash . '_v' . $settings_version;
+        
+        // Try to get from cache
+        $cached_html = get_transient($cache_key);
+        if (false !== $cached_html) {
+            return $cached_html;
+        }
+        
+        // Cache miss - generate HTML
+        $html = $this->generate_cart_content_html();
+        
+        // Cache for 1 hour
+        // Why 1 hour? Because:
+        // - Cart hash changes when items/quantities change (auto-invalidates)
+        // - Settings version changes when colors/thresholds change (auto-invalidates)
+        // - 1 hour is safe for any edge cases we missed
+        set_transient($cache_key, $html, HOUR_IN_SECONDS);
+        
+        return $html;
+    }
+    
+    /**
+     * Generate settings version hash
+     * Changes whenever any plugin setting changes
+     */
+    private function get_settings_version()
+    {
+        static $version = null;
+        
+        if (null !== $version) {
+            return $version;
+        }
+        
+        // Hash all settings that affect HTML output
+        $settings = array(
+            get_option('quantwp_sidecart_shipping_threshold'),
+            get_option('quantwp_sidecart_shipping_bar_enabled'),
+            get_option('quantwp_sidecart_cross_sells_enabled'),
+            get_option('quantwp_sidecart_cross_sells_limit'),
+            get_option('quantwp_sidecart_shipping_threshold_color'),
+            get_option('quantwp_sidecart_carousel_background_color'),
+            get_option('quantwp_sidecart_checkout_btn_bg'),
+        );
+        
+        $version = substr(md5(serialize($settings)), 0, 8);
+        return $version;
+    }
+
+    /**
+     * Actually generate the cart HTML (not cached)
+     */
+    private function generate_cart_content_html()
     {
         $cart = WC()->cart;
         $cart_items = $cart->get_cart();
@@ -158,7 +265,6 @@ class QuantWP_SideCart_Main
                         <div class="quantwp-sidecart-item-details">
                             <a href="<?php echo esc_url($_product->get_permalink()); ?>" class="product-name">
                                 <?php
-                                // If it's a variation, show just the parent name (e.g. "T-Shirt")
                                 echo esc_html($_product->is_type('variation') ? $_product->get_parent_data()['title'] : $_product->get_name());
                                 ?>
                             </a>
@@ -187,23 +293,14 @@ class QuantWP_SideCart_Main
 
                         <div class="quantwp-sidecart-item-price">
                             <?php
-                            // 1. Check if the product is on sale
                             if ($_product->is_on_sale()) {
-
-                                // 2. Calculate the Regular Price Subtotal (Raw Regular Price * Quantity)
-                                // We use wc_price() to format it with your currency settings
                                 $regular_price = $_product->get_regular_price();
                                 $regular_subtotal = wc_price($regular_price * $cart_item['quantity']);
-
-                                // 3. Get the Active Price Subtotal (Sale Price) using the standard function
-                                // This handles taxes/settings automatically
                                 $active_subtotal = $cart->get_product_subtotal($_product, $cart_item['quantity']);
-
-                                // 4. Output: <del>Regular</del> <ins>Sale</ins>
+                                
                                 echo '<ins class="sale-price" style="text-decoration: none; margin-left: 5px;">' . wp_kses_post($active_subtotal) . '</ins>';
                                 echo '<del class="original-price">' . wp_kses_post($regular_subtotal) . '</del>';
                             } else {
-                                // Not on sale? Just show the standard subtotal
                                 echo wp_kses_post($cart->get_product_subtotal($_product, $cart_item['quantity']));
                             }
                             ?>
@@ -225,8 +322,6 @@ class QuantWP_SideCart_Main
             do_action('quantwp_sidecart_after_cart_items');
             ?>
         </div>
-
-
 
         <footer class="quantwp-sidecart-footer">
             <?php if ($cart_has_items) : ?>
@@ -255,13 +350,12 @@ class QuantWP_SideCart_Main
     <?php
         $fragments['.quantwp-sidecart-wrapper'] = ob_get_clean();
 
-        // 2. Update the Cart Count Badge (ALWAYS SHOW)
+        // Update the Cart Count Badge
         $count = WC()->cart->get_cart_contents_count();
         $fragments['.cart-count-badge'] = '<span class="cart-count-badge">' . esc_html($count) . '</span>';
 
         return $fragments;
     }
-
 
     public function quantwp_ajax_update_cart()
     {
@@ -282,7 +376,10 @@ class QuantWP_SideCart_Main
 
         WC()->cart->calculate_totals();
 
-        // Manually build all fragments by calling your own methods
+        // Clear cache (cart hash will change automatically, but be explicit)
+        $this->clear_cart_fragment_cache();
+
+        // Manually build all fragments
         $fragments = array();
 
         // Cart content fragment
@@ -294,11 +391,10 @@ class QuantWP_SideCart_Main
     <?php
         $fragments['.quantwp-sidecart-wrapper'] = ob_get_clean();
 
-        //  Update Cart Count Badge fragment 
+        // Update Cart Count Badge
         $count = WC()->cart->get_cart_contents_count();
         $fragments['.cart-count-badge'] = '<span class="cart-count-badge">' . esc_html($count) . '</span>';
 
-        // Trigger other classes to add their fragments
         // Shipping bar
         $shipping_bar = QuantWP_SideCart_Shipping_Bar::get_instance();
         ob_start();
@@ -309,7 +405,7 @@ class QuantWP_SideCart_Main
         $cross_sells = QuantWP_SideCart_Cross_Sells::get_instance();
         $fragments['.quantwp-cross-sells-wrapper'] = $cross_sells->render_cross_sells();
 
-        // Allow other plugins to add their own fragments
+        // Allow other plugins to add fragments
         $fragments = apply_filters('quantwp_sidecart_fragments', $fragments);
 
         wp_send_json_success(array(
@@ -324,7 +420,6 @@ class QuantWP_SideCart_Main
      */
     public function quantwp_icon_shortcode()
     {
-
         $cart_count = WC()->cart->get_cart_contents_count();
         $icon_key = get_option('quantwp_sidecart_icon', 'cart-classic');
         $icons = QuantWP_SideCart_Settings::get_cart_icons();

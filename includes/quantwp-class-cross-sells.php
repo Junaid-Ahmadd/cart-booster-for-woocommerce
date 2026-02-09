@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Cross-sells Product Class
+ * Cross-sells Product Class - OPTIMIZED VERSION
  */
 
 if (!defined('ABSPATH')) {
@@ -12,7 +12,6 @@ class QuantWP_SideCart_Cross_Sells
 {
 
     protected static $instance = null;
-
 
     public static function get_instance()
     {
@@ -37,6 +36,14 @@ class QuantWP_SideCart_Cross_Sells
 
         // Add cross-sells to fragments
         add_filter('woocommerce_add_to_cart_fragments', array($this, 'cross_sells_fragment'));
+        
+        // Clear cache when cart changes significantly
+        add_action('woocommerce_cart_item_removed', array($this, 'clear_cross_sell_cache'));
+        add_action('woocommerce_add_to_cart', array($this, 'clear_cross_sell_cache'));
+        
+        // Clear cache when settings are saved
+        add_action('update_option_quantwp_sidecart_cross_sells_limit', array($this, 'clear_cross_sell_cache'));
+        add_action('update_option_quantwp_sidecart_cross_sells_enabled', array($this, 'clear_cross_sell_cache'));
     }
 
     public function enqueue_assets()
@@ -57,9 +64,20 @@ class QuantWP_SideCart_Cross_Sells
         );
     }
 
+    /**
+     * Clear cross-sell cache
+     */
+    public function clear_cross_sell_cache()
+    {
+        // Get current user's cart hash
+        $cart_hash = WC()->cart->get_cart_hash();
+        if ($cart_hash) {
+            delete_transient('quantwp_cross_sells_' . $cart_hash);
+        }
+    }
 
     /**
-     * Get Cross Sell Product Ids for all cart items
+     * Get Cross Sell Product Ids for all cart items - WITH CACHING
      */
     public function get_cross_sell_ids()
     {
@@ -69,9 +87,26 @@ class QuantWP_SideCart_Cross_Sells
             return array();
         }
 
-        $cross_sell_ids = array();
+        // Create cache key based on cart contents
+        $cart_hash = $cart->get_cart_hash();
+        $cache_key = 'quantwp_cross_sells_' . $cart_hash;
+        
+        // Try to get from cache first
+        $cached_ids = get_transient($cache_key);
+        if (false !== $cached_ids) {
+            return $cached_ids;
+        }
 
-        // Loop through cart items
+        // If not cached, calculate
+        $cross_sell_ids = array();
+        $cart_product_ids = array();
+
+        // Collect cart product IDs first (single loop)
+        foreach ($cart->get_cart() as $cart_item) {
+            $cart_product_ids[] = $cart_item['product_id'];
+        }
+
+        // Loop through cart items to get cross-sells
         foreach ($cart->get_cart() as $cart_item) {
             $_product = $cart_item['data'];
 
@@ -91,41 +126,53 @@ class QuantWP_SideCart_Cross_Sells
         $cross_sell_ids = array_unique($cross_sell_ids);
 
         // Remove products already in cart
-        $cart_product_ids = array();
-        foreach ($cart->get_cart() as $cart_item) {
-            $cart_product_ids[] = $cart_item['product_id'];
-        }
         $cross_sell_ids = array_diff($cross_sell_ids, $cart_product_ids);
 
         // Get limit from settings
         $limit = absint(get_option('quantwp_sidecart_cross_sells_limit', 6));
         $cross_sell_ids = array_slice($cross_sell_ids, 0, $limit);
 
+        // Cache for 1 hour (or until cart changes)
+        set_transient($cache_key, $cross_sell_ids, HOUR_IN_SECONDS);
+
         return $cross_sell_ids;
     }
 
     /**
-     * Get cross sell products
+     * Get cross sell products - OPTIMIZED to avoid N+1 queries
      */
     public function get_cross_sell_products()
     {
-
         $product_ids = $this->get_cross_sell_ids();
 
         if (empty($product_ids)) {
             return array();
         }
 
+        // OPTIMIZATION: Use WP_Query to get all products at once instead of individual calls
+        $args = array(
+            'post_type' => 'product',
+            'post__in' => $product_ids,
+            'posts_per_page' => count($product_ids),
+            'orderby' => 'post__in', // Maintain the order
+            'no_found_rows' => true, // Don't count total rows (performance)
+            'update_post_meta_cache' => true,
+            'update_post_term_cache' => true,
+        );
+
+        $query = new WP_Query($args);
         $products = array();
 
-        foreach ($product_ids as $product_id) {
-            $product = wc_get_product($product_id);
+        if ($query->have_posts()) {
+            while ($query->have_posts()) {
+                $query->the_post();
+                $product = wc_get_product(get_the_ID());
 
-            if (!$product || !$product->is_visible()) {
-                continue;
+                if ($product && $product->is_visible()) {
+                    $products[] = $product;
+                }
             }
-
-            $products[] = $product;
+            wp_reset_postdata();
         }
 
         return $products;
@@ -158,7 +205,7 @@ class QuantWP_SideCart_Cross_Sells
     {
         // Check if cross-sells enabled
         if (!get_option('quantwp_sidecart_cross_sells_enabled', 1)) {
-            return;
+            return '';
         }
 
         $products = $this->get_cross_sell_products();
@@ -172,10 +219,7 @@ class QuantWP_SideCart_Cross_Sells
         <div class="quantwp-cross-sells-wrapper">
             <div class="cross-sells-header">
                 <h4><?php esc_html_e('You may also like', 'quantwp-sidecart-for-woocommerce'); ?></h4>
-
             </div>
-
-
 
             <div class="cross-sells-carousel">
                 <button class="carousel-prev" aria-label="Previous">&lsaquo;</button>
@@ -206,7 +250,6 @@ class QuantWP_SideCart_Cross_Sells
                 </div>
                 <button class="carousel-next" aria-label="Next">&rsaquo;</button>
             </div>
-
         </div>
 <?php
         return ob_get_clean();

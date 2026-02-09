@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Shipping Progress Bar Class
+ * Shipping Progress Bar Class - OPTIMIZED VERSION
  */
 
 if (!defined('ABSPATH')) {
@@ -11,7 +11,6 @@ if (!defined('ABSPATH')) {
 class QuantWP_SideCart_Shipping_Bar
 {
     protected static $instance = null;
-
 
     public static function get_instance()
     {
@@ -36,6 +35,10 @@ class QuantWP_SideCart_Shipping_Bar
 
         // Add shipping bar data to fragments
         add_filter('woocommerce_add_to_cart_fragments', array($this, 'shipping_bar_fragment'));
+        
+        // Clear cache when settings change
+        add_action('update_option_quantwp_sidecart_shipping_threshold', array($this, 'clear_shipping_cache'));
+        add_action('update_option_quantwp_sidecart_shipping_bar_enabled', array($this, 'clear_shipping_cache'));
     }
 
     public function enqueue_assets()
@@ -48,9 +51,29 @@ class QuantWP_SideCart_Shipping_Bar
         );
     }
 
+    /**
+     * Clear shipping bar cache
+     */
+    public function clear_shipping_cache()
+    {
+        // Clear for all users (you could make this per-user if needed)
+        delete_transient('quantwp_shipping_threshold');
+    }
+
+    /**
+     * Get threshold with caching
+     */
     public function get_threshold()
     {
-        return floatval(get_option('quantwp_sidecart_shipping_threshold', 50));
+        $threshold = get_transient('quantwp_shipping_threshold');
+        
+        if (false === $threshold) {
+            $threshold = floatval(get_option('quantwp_sidecart_shipping_threshold', 50));
+            // Cache for 1 hour
+            set_transient('quantwp_shipping_threshold', $threshold, HOUR_IN_SECONDS);
+        }
+        
+        return $threshold;
     }
 
     public function get_cart_total()
@@ -58,6 +81,9 @@ class QuantWP_SideCart_Shipping_Bar
         return WC()->cart->get_subtotal();
     }
 
+    /**
+     * Calculate progress - lightweight calculation, no DB queries
+     */
     public function calculate_progress()
     {
         $cart_total = $this->get_cart_total();
@@ -101,7 +127,6 @@ class QuantWP_SideCart_Shipping_Bar
         echo '<div class="quantwp-shipping-bar-wrapper"></div>';
     }
 
-
     public function render_shipping_bar_content()
     {
         $cart = WC()->cart;
@@ -113,7 +138,7 @@ class QuantWP_SideCart_Shipping_Bar
 
         // Don't show if cart is empty
         if ($cart->is_empty()) {
-            return;
+            return '';
         }
 
         $progress = $this->calculate_progress();
@@ -137,9 +162,9 @@ class QuantWP_SideCart_Shipping_Bar
                         printf(
                             /* translators: %1$s: Remaining amount, %2$s: Opening strong tag, %3$s: Closing strong tag */
                             esc_html__('Add %1$s more to get %2$sFREE Shipping%3$s', 'quantwp-sidecart-for-woocommerce'),
-                            '<strong>' . wp_kses_post(wc_price($progress['remaining'])) . '</strong>', // %1$s
-                            '<strong>', // %2$s
-                            '</strong>' // %3$s
+                            '<strong>' . wp_kses_post(wc_price($progress['remaining'])) . '</strong>',
+                            '<strong>',
+                            '</strong>'
                         );
                         ?>
                     </span>
